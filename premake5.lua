@@ -1,6 +1,6 @@
-workspace "Solar System"
+workspace "Solar-System"
     architecture "x64"
-    startproject "Solar System"
+    startproject "Solar-System"
     configurations { "Debug", "Release" }
 
     targetdir("%{wks.location}/export/%{cfg.system}/%{cfg.buildcfg}/libs/%{prj.name}")
@@ -34,4 +34,4 @@ group "Dependencies"
     include "vendor/imgui"
 group ""
 
-include "Solar System"
+include "Solar-System"
