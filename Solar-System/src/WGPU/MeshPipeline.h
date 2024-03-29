@@ -3,6 +3,11 @@
 #include <webgpu/webgpu.hpp>
 #include <vector>
 
+struct MeshUniform
+{
+	float uTime;
+};
+
 class MeshPipeline
 {
 public:
@@ -18,5 +23,9 @@ public:
 	operator wgpu::ShaderModule() { return shaderModule; }
 public:
 	wgpu::ShaderModule shaderModule;
+	wgpu::BindGroupLayout bindGroupLayout;
+	wgpu::Buffer uniformBuffer;
+	wgpu::BindGroup bindGroup;
+	wgpu::PipelineLayout layout;
 	wgpu::RenderPipeline pipeline;
 };

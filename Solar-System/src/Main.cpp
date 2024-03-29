@@ -1,11 +1,13 @@
 #include "Core/Application.h"
 #include "States/PlanetCreator.h"
 
-#include <iostream>
+#include "Celestial-Bodies/IcoSphere.h"
 
 int main()
 {
 	Application* app = new Application(1280, 720, "App", new PlanetCreator());
 	app->Run();
 	delete app;
+
+	return 0;
 }

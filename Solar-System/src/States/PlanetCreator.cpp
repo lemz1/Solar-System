@@ -35,11 +35,25 @@ void PlanetCreator::OnCreate()
 		1, 3, 2
 	};
 
-	_mesh = new Mesh(vertices, texCoords, normals, indices);
+	_mesh = new Mesh(vertices, texCoords, normals, indices, {});
+
+	//_mesh = IcoSphere::Generate(1);
+
+	_camera = new Camera(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
+
+	_cameraController = new CameraController(_camera);
 }
 
 void PlanetCreator::OnUpdate(float deltaTime)
-{}
+{
+	Queue queue = Application::GetWGPUContext()->queue;
+
+	MeshUniform uniform = {};
+	uniform.uTime = Application::GetTime();
+	queue.writeBuffer(_pipeline->uniformBuffer, 0, &uniform, sizeof(MeshUniform));
+
+	_cameraController->OnUpdate(deltaTime);
+}
 
 void PlanetCreator::OnDraw()
 {
@@ -81,6 +95,7 @@ void PlanetCreator::OnDraw()
 	RenderPassEncoder renderPass = encoder.beginRenderPass(renderPassDesc);
 
 	renderPass.setPipeline(*_pipeline);
+	renderPass.setBindGroup(0, _pipeline->bindGroup, 0, nullptr);
 
 	_mesh->Draw(renderPass);
 
@@ -101,6 +116,8 @@ void PlanetCreator::OnDraw()
 
 void PlanetCreator::OnDestroy()
 {
+	delete _cameraController;
+	delete _camera;
 	delete _pipeline;
 	delete _mesh;
 }

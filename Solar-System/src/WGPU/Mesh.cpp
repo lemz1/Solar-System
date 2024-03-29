@@ -8,12 +8,14 @@ Mesh::Mesh(
     const std::vector<Vec3>& vertices,
     const std::vector<Vec2>& texCoords,
     const std::vector<Vec3>& normals,
-    const std::vector<uint32_t>& indices
+    const std::vector<uint32_t>& indices,
+    const MeshUniform& uniform
 )
 :   _vertexBuffer(nullptr),
     _texCoordBuffer(nullptr),
     _normalBuffer(nullptr),
-    _indexBuffer(nullptr)
+    _indexBuffer(nullptr),
+    uniform(uniform)
 {
     SetVertices(vertices);
     SetTexCoords(texCoords);

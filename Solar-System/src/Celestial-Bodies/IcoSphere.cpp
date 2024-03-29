@@ -1,76 +1,153 @@
 #include "IcoSphere.h"
 
 #include <vector>
+#include <unordered_map>
 #include "Util/Math.h"
 
-//TODO: finish this
+// https://schneide.blog/2016/07/15/generating-an-icosphere-in-c/
+// using this for icosahedron tables
+static constexpr float X = 0.525731112119133606f;
+static constexpr float Z = 0.850650808352039932f;
+static constexpr float N = 0.f;
 
-// https://en.wikipedia.org/wiki/Regular_icosahedron 
-// Construction: using given coordinates
-
-static constexpr float GoldenRatio = 1.618033988749f;
-
-static constexpr Vec3 IcosahedronVertices[] = {
-	Vec3(-1,  GoldenRatio, 0),
-	Vec3( 1,  GoldenRatio, 0),
-	Vec3(-1, -GoldenRatio, 0),
-	Vec3( 1, -GoldenRatio, 0),
-
-	Vec3(0, -1,  GoldenRatio),
-	Vec3(0,  1,  GoldenRatio),
-	Vec3(0, -1, -GoldenRatio),
-	Vec3(0,  1, -GoldenRatio),
-
-	Vec3( GoldenRatio, 0, -1),
-	Vec3( GoldenRatio, 0,  1),
-	Vec3(-GoldenRatio, 0, -1),
-	Vec3(-GoldenRatio, 0,  1),
+static const std::vector<Vec3> icosahedronVertices = {
+	{-X,N,Z}, {X,N,Z  }, {-X,N,-Z}, {X,N,-Z },
+	{N,Z,X }, {N,Z,-X }, {N,-Z,X }, {N,-Z,-X},
+	{Z,X,N }, {-Z,X, N}, {Z,-X,N }, {-Z,-X,N}
 };
 
-static constexpr uint32_t IcosahedronIndices[] = {
-	0, 1, 5,
-	0, 1, 7,
-	0, 5, 11,
-	0, 7, 10,
-	0, 10, 11,
-	
+static const std::vector<uint32_t> icosahedronIndices = {
+	0,4,1,
+	0,9,4,
+	9,5,4, 
+	4,5,8,
+	4,8,1,
+	8,10,1,
+	8,3,10,
+	5,3,8,
+	5,2,3,
+	2,7,3,
+	7,10,3,
+	7,6,10,
+	7,11,6,
+	11,0,6,
+	0,1,6,
+	6,1,10,
+	9,0,11,
+	9,11,2,
+	9,2,5,
+	7,2,11,
+};
+
+struct Vec3Hash
+{
+	std::size_t operator()(const glm::vec3& v) const
+	{
+		// Combine the hashes of the x, y, and z components
+		std::size_t h1 = std::hash<float>()(v.x);
+		std::size_t h2 = std::hash<float>()(v.y);
+		std::size_t h3 = std::hash<float>()(v.z);
+		return h1 ^ h2 ^ h3; // Example of combining hashes
+	}
+};
+
+// Equality function for glm::vec3
+struct Vec3Equal
+{
+	bool operator()(const glm::vec3& lhs, const glm::vec3& rhs) const
+	{
+		return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+	}
 };
 
 namespace IcoSphere
 {
-	Mesh* Generate(uint32_t lod)
+	Mesh* Generate(uint32_t subdivisions)
 	{
-		std::vector<Vec3> vertices;
-		std::vector<uint32_t> indices;
+		std::vector<Vec3> icoSphereVertices = icosahedronVertices;
+		std::vector<uint32_t> icoSphereIndices = icosahedronIndices;
 
 		// subdivide the faces of the icosahedron
 		// and project the vertices on the sphere
-		for (uint32_t i = 0; i < lod; i++)
+		for (uint32_t i = 0; i < subdivisions; i++)
 		{
 			std::vector<Vec3> newVertices;
 			std::vector<uint32_t> newIndices;
+			std::unordered_map<Vec3, uint32_t, Vec3Hash, Vec3Equal> vertexMap;
 
-			for (uint32_t triangleIndex = 0; triangleIndex < indices.size(); triangleIndex += 3)
+			for (uint32_t triangleIndex = 0; triangleIndex < icoSphereIndices.size(); triangleIndex += 3)
 			{
-				Vec3 vertexA = vertices[indices[triangleIndex]];
-				Vec3 vertexB = vertices[indices[triangleIndex]];
-				Vec3 vertexC = vertices[indices[triangleIndex]];
+				Vec3& vertexA = icoSphereVertices[icoSphereIndices[triangleIndex]];
+				Vec3& vertexB = icoSphereVertices[icoSphereIndices[triangleIndex + 1]];
+				Vec3& vertexC = icoSphereVertices[icoSphereIndices[triangleIndex + 2]];
 
 				Vec3 vertexAB = (vertexA + vertexB) / 2.f;
-				Vec3 vertexAC = (vertexA + vertexC) / 2.f;
 				Vec3 vertexBC = (vertexB + vertexC) / 2.f;
+				Vec3 vertexCA = (vertexC + vertexA) / 2.f;
+				
+				if (!vertexMap.count(vertexA))
+				{
+					newVertices.emplace_back(glm::normalize(vertexA));
+					vertexMap.insert(std::make_pair(vertexA, newVertices.size() - 1));
+				}
+				if (!vertexMap.count(vertexB))
+				{
+					newVertices.emplace_back(glm::normalize(vertexB));
+					vertexMap.insert(std::make_pair(vertexB, newVertices.size() - 1));
+				}
+				if (!vertexMap.count(vertexC))
+				{
+					newVertices.emplace_back(glm::normalize(vertexC));
+					vertexMap.insert(std::make_pair(vertexC, newVertices.size() - 1));
+				}
+				if (!vertexMap.count(vertexAB))
+				{
+					newVertices.emplace_back(glm::normalize(vertexAB));
+					vertexMap.insert(std::make_pair(vertexAB, newVertices.size() - 1));
+				}
+				if (!vertexMap.count(vertexBC))
+				{
+					newVertices.emplace_back(glm::normalize(vertexBC));
+					vertexMap.insert(std::make_pair(vertexBC, newVertices.size() - 1));
+				}
+				if (!vertexMap.count(vertexCA))
+				{
+					newVertices.emplace_back(glm::normalize(vertexCA));
+					vertexMap.insert(std::make_pair(vertexCA, newVertices.size() - 1));
+				}
 
-				newVertices.emplace_back();
-				newIndices.emplace_back();
+				uint32_t vertexAIndex = vertexMap.at(vertexA);
+				uint32_t vertexBIndex = vertexMap.at(vertexB);
+				uint32_t vertexCIndex = vertexMap.at(vertexC);
+				uint32_t vertexABIndex = vertexMap.at(vertexAB);
+				uint32_t vertexBCIndex = vertexMap.at(vertexBC);
+				uint32_t vertexCAIndex = vertexMap.at(vertexCA);
+
+				newIndices.emplace_back(vertexAIndex);
+				newIndices.emplace_back(vertexABIndex);
+				newIndices.emplace_back(vertexCAIndex);
+
+				newIndices.emplace_back(vertexBIndex);
+				newIndices.emplace_back(vertexBCIndex);
+				newIndices.emplace_back(vertexABIndex);
+
+				newIndices.emplace_back(vertexCIndex);
+				newIndices.emplace_back(vertexCAIndex);
+				newIndices.emplace_back(vertexBCIndex);
+
+				newIndices.emplace_back(vertexABIndex);
+				newIndices.emplace_back(vertexBCIndex);
+				newIndices.emplace_back(vertexCAIndex);
 			}
 
-			vertices = newVertices;
-			indices = newIndices;
+			icoSphereVertices = newVertices;
+			icoSphereIndices = newIndices;
 		}
 
-		std::vector<Vec2> texCoords;
-		std::vector<Vec3> normals;
+		std::vector<Vec2> icoSphereTexCoords;
+		icoSphereTexCoords.resize(icoSphereVertices.size());
 
-		return new Mesh(vertices, texCoords, normals, indices);
+		// normals are the same as vertices
+		return new Mesh(icoSphereVertices, icoSphereTexCoords, icoSphereVertices, icoSphereIndices, {});
 	}
 }

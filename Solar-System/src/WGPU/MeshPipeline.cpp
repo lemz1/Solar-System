@@ -11,16 +11,22 @@ MeshPipeline::MeshPipeline(
 	const char* fragmentEntryPoint
 )
 :	shaderModule(nullptr),
+	bindGroupLayout(nullptr),
+	uniformBuffer(nullptr),
+	bindGroup(nullptr),
+	layout(nullptr),
 	pipeline(nullptr)
 {
 	Device device = Application::GetWGPUContext()->device;
+	Queue queue = Application::GetWGPUContext()->queue;
 	TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
 
 	shaderModule = AssetManager::LoadShaderModule(shaderPath);
 
 	RenderPipelineDescriptor pipelineDesc;
 	pipelineDesc.label = "Mesh Pipeline";
-	// Vertex fetch
+	
+	// Vertex State
 	std::vector<VertexAttribute> vertexAttribs(3);
 
 	// Position attribute
@@ -67,8 +73,8 @@ MeshPipeline::MeshPipeline(
 	pipelineDesc.primitive.frontFace = FrontFace::CCW;
 	pipelineDesc.primitive.cullMode = CullMode::None;
 
+	// Fragment State
 	FragmentState fragmentState;
-	pipelineDesc.fragment = &fragmentState;
 	fragmentState.module = shaderModule;
 	fragmentState.entryPoint = fragmentEntryPoint;
 	fragmentState.constantCount = 0;
@@ -90,16 +96,50 @@ MeshPipeline::MeshPipeline(
 	fragmentState.targetCount = 1;
 	fragmentState.targets = &colorTarget;
 
-	pipelineDesc.depthStencil = nullptr;
+	pipelineDesc.fragment = &fragmentState;
 
+	pipelineDesc.depthStencil = nullptr;
 	pipelineDesc.multisample.count = 1;
 	pipelineDesc.multisample.mask = ~0u;
 	pipelineDesc.multisample.alphaToCoverageEnabled = false;
 
+	// Bind Groups (Uniforms)
+	BindGroupLayoutEntry bindingLayout = Default;
+	bindingLayout.binding = 0;
+	bindingLayout.visibility = ShaderStage::Vertex;
+	bindingLayout.buffer.type = BufferBindingType::Uniform;
+	bindingLayout.buffer.minBindingSize = sizeof(MeshUniform);
+
+	BindGroupLayoutDescriptor bindGroupLayoutDesc{};
+	bindGroupLayoutDesc.entryCount = 1;
+	bindGroupLayoutDesc.entries = &bindingLayout;
+	bindGroupLayout = device.createBindGroupLayout(bindGroupLayoutDesc);
+
+	BufferDescriptor bufferDesc{};
+	bufferDesc.size = sizeof(MeshUniform);
+	bufferDesc.usage = BufferUsage::CopyDst | BufferUsage::Uniform;
+	bufferDesc.mappedAtCreation = false;
+	uniformBuffer = device.createBuffer(bufferDesc);
+
+	MeshUniform uniform = {};
+	queue.writeBuffer(uniformBuffer, 0, &uniform, sizeof(MeshUniform));
+
+	BindGroupEntry binding{};
+	binding.binding = 0;
+	binding.buffer = uniformBuffer;
+	binding.offset = 0;
+	binding.size = sizeof(MeshUniform);
+
+	BindGroupDescriptor bindGroupDesc{};
+	bindGroupDesc.layout = bindGroupLayout;
+	bindGroupDesc.entryCount = bindGroupLayoutDesc.entryCount;
+	bindGroupDesc.entries = &binding;
+	bindGroup = device.createBindGroup(bindGroupDesc);
+
 	PipelineLayoutDescriptor layoutDesc;
-	layoutDesc.bindGroupLayoutCount = 0;
-	layoutDesc.bindGroupLayouts = nullptr;
-	PipelineLayout layout = device.createPipelineLayout(layoutDesc);
+	layoutDesc.bindGroupLayoutCount = 1;
+	layoutDesc.bindGroupLayouts = (WGPUBindGroupLayout*)&bindGroupLayout;
+	layout = device.createPipelineLayout(layoutDesc);
 	pipelineDesc.layout = layout;
 
 	pipeline = device.createRenderPipeline(pipelineDesc);
@@ -108,5 +148,10 @@ MeshPipeline::MeshPipeline(
 MeshPipeline::~MeshPipeline()
 {
 	pipeline.release();
+	layout.release();
+	bindGroup.release();
+	uniformBuffer.destroy();
+	uniformBuffer.release();
+	bindGroupLayout.release();
 	shaderModule.release();
 }

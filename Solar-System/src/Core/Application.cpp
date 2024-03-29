@@ -37,13 +37,13 @@ Application::~Application()
 
 void Application::Run()
 {
-	float time = 0;
+	_time = 0;
 
 	while (!glfwWindowShouldClose(_window->_handle))
 	{
 		float newTime = glfwGetTime();
-		float deltaTime = newTime - time;
-		time = newTime;
+		float deltaTime = newTime - _time;
+		_time = newTime;
 
 		glfwPollEvents();
 

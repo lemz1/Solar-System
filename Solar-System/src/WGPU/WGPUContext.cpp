@@ -41,6 +41,9 @@ WGPUContext::WGPUContext(
 	requiredLimits.limits.minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment;
 	requiredLimits.limits.minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment;
 	requiredLimits.limits.maxInterStageShaderComponents = 5;
+	requiredLimits.limits.maxBindGroups = 1;
+	requiredLimits.limits.maxUniformBuffersPerShaderStage = 1;
+	requiredLimits.limits.maxUniformBufferBindingSize = 16 * sizeof(float);
 
 	DeviceDescriptor deviceDesc;
 	deviceDesc.label = "Device";

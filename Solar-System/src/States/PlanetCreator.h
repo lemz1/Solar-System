@@ -1,10 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <webgpu/webgpu.hpp>
 #include "Core/State.h"
 #include "WGPU/MeshPipeline.h"
 #include "WGPU/Mesh.h"
+#include "Util/Camera.h"
+#include "Util/CameraController.h"
+#include "Celestial-Bodies/IcoSphere.h"
+
+#include <vector>
+#include <webgpu/webgpu.hpp>
 
 class PlanetCreator : public State
 {
@@ -18,4 +22,6 @@ public:
 private:
 	MeshPipeline* _pipeline = nullptr;
 	Mesh* _mesh = nullptr;
+	Camera* _camera = nullptr;
+	CameraController* _cameraController = nullptr;
 };
