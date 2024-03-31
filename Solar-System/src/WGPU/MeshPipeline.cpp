@@ -71,7 +71,7 @@ MeshPipeline::MeshPipeline(
 	pipelineDesc.primitive.topology = PrimitiveTopology::TriangleList;
 	pipelineDesc.primitive.stripIndexFormat = IndexFormat::Undefined;
 	pipelineDesc.primitive.frontFace = FrontFace::CCW;
-	pipelineDesc.primitive.cullMode = CullMode::None; // Maybe make this CullMode::Back later
+	pipelineDesc.primitive.cullMode = CullMode::Back;
 
 	// Fragment State
 	FragmentState fragmentState;

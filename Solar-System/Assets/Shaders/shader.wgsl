@@ -29,8 +29,8 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	let color: vec3<f32> = vec3<f32>(1.0, 1.0, 1.0);
 	let light: f32 = dot(in.normal, vec3<f32>(1.0, 1.0, 0.0));
-	let gamma_corrected_color: vec3<f32> = pow(color * light, vec3<f32>(2.2));
+	let color: vec3<f32> = vec3<f32>(1.0, 1.0, 1.0);
+	let gamma_corrected_color: vec3<f32> = pow(max(color * light, vec3<f32>(0.0)), vec3<f32>(2.2));
 	return vec4<f32>(gamma_corrected_color, 1.0);
 }

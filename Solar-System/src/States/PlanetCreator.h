@@ -1,14 +1,12 @@
 #pragma once
 
 #include "Core/State.h"
+#include "WGPU/DepthTexture.h"
 #include "WGPU/MeshPipeline.h"
 #include "WGPU/Mesh.h"
 #include "Util/Camera.h"
 #include "Util/CameraController.h"
 #include "Celestial-Bodies/IcoSphere.h"
-
-#include <vector>
-#include <webgpu/webgpu.hpp>
 
 class PlanetCreator : public State
 {
@@ -20,10 +18,9 @@ public:
 	void OnDraw() override;
 	void OnDestroy() override;
 private:
+	DepthTexture* _depthTexture = nullptr;
 	MeshPipeline* _pipeline = nullptr;
 	Mesh* _mesh = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;
-	wgpu::Texture _depthTexture = nullptr;
-	wgpu::TextureView _depthTextureView = nullptr;
 };
