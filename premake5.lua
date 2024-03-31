@@ -6,7 +6,12 @@ workspace "Solar-System"
     targetdir("%{wks.location}/export/%{cfg.system}/%{cfg.buildcfg}/libs/%{prj.name}")
     objdir("%{wks.location}/export/%{cfg.system}/%{cfg.buildcfg}/objs/%{prj.name}")
 
-    defines { "GLM_ENABLE_EXPERIMENTAL" }
+    defines 
+    { 
+        "GLM_ENABLE_EXPERIMENTAL",
+        "GLM_FORCE_DEPTH_ZERO_TO_ONE",
+        "GLM_FORCE_LEFT_HANDED"
+    }
 
     filter "configurations:Debug"
         defines { "DEBUG" }

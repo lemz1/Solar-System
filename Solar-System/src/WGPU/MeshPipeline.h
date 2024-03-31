@@ -1,11 +1,12 @@
 #pragma once
 
 #include <webgpu/webgpu.hpp>
+#include <glm/glm.hpp>
 #include <vector>
 
 struct MeshUniform
 {
-	float uTime;
+	glm::mat4 modelViewProjection;
 };
 
 class MeshPipeline

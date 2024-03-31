@@ -10,7 +10,9 @@ Camera::Camera(
 	_height(height),
 	_verticalFOV(45.0f),
 	_nearClipPlane(0.1f),
-	_farClipPlane(100.0f)
+	_farClipPlane(100.0f),
+	_position(Vec3(0.0f, 0.0f, 0.0f)),
+	_rotation(Quat(1.0f, 0.0f, 0.0f, 0.0f))
 {
 	RecalculateView();
 	RecalculateProjection();

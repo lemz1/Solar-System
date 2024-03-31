@@ -24,4 +24,6 @@ private:
 	Mesh* _mesh = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;
+	wgpu::Texture _depthTexture = nullptr;
+	wgpu::TextureView _depthTextureView = nullptr;
 };

@@ -71,7 +71,7 @@ MeshPipeline::MeshPipeline(
 	pipelineDesc.primitive.topology = PrimitiveTopology::TriangleList;
 	pipelineDesc.primitive.stripIndexFormat = IndexFormat::Undefined;
 	pipelineDesc.primitive.frontFace = FrontFace::CCW;
-	pipelineDesc.primitive.cullMode = CullMode::None;
+	pipelineDesc.primitive.cullMode = CullMode::None; // Maybe make this CullMode::Back later
 
 	// Fragment State
 	FragmentState fragmentState;
@@ -97,8 +97,16 @@ MeshPipeline::MeshPipeline(
 	fragmentState.targets = &colorTarget;
 
 	pipelineDesc.fragment = &fragmentState;
+	
+	DepthStencilState depthStencilState = Default;
+	depthStencilState.depthCompare = CompareFunction::Less;
+	depthStencilState.depthWriteEnabled = true;
+	depthStencilState.format = TextureFormat::Depth24Plus;
+	depthStencilState.stencilReadMask = 0;
+	depthStencilState.stencilWriteMask = 0;
 
-	pipelineDesc.depthStencil = nullptr;
+	pipelineDesc.depthStencil = &depthStencilState;
+ 
 	pipelineDesc.multisample.count = 1;
 	pipelineDesc.multisample.mask = ~0u;
 	pipelineDesc.multisample.alphaToCoverageEnabled = false;

@@ -32,7 +32,6 @@ Application::~Application()
 
 	delete _wgpuContext;
 	delete _window;
-
 }
 
 void Application::Run()

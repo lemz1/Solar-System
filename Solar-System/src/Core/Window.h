@@ -13,6 +13,7 @@ public:
 	);
 	~Window();
 
+	GLFWwindow* GetHandle() { return _handle; }
 	uint32_t GetWidth() const { return _width; }
 	uint32_t GetHeight() const { return _height; }
 	const char* GetTitle() const { return _title; }

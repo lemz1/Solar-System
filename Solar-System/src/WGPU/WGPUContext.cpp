@@ -44,6 +44,9 @@ WGPUContext::WGPUContext(
 	requiredLimits.limits.maxBindGroups = 1;
 	requiredLimits.limits.maxUniformBuffersPerShaderStage = 1;
 	requiredLimits.limits.maxUniformBufferBindingSize = 16 * sizeof(float);
+	requiredLimits.limits.maxTextureDimension1D = 720;
+	requiredLimits.limits.maxTextureDimension2D = 1280;
+	requiredLimits.limits.maxTextureArrayLayers = 1;
 
 	DeviceDescriptor deviceDesc;
 	deviceDesc.label = "Device";
