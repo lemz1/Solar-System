@@ -10,36 +10,40 @@ DepthTexture::DepthTexture(
 	uint32_t width,
 	uint32_t height
 )
-:	_depthTexture(nullptr),
-	_depthTextureView(nullptr)
+:	_width(width),
+	_height(height),
+	_texture(nullptr),
+	_textureView(nullptr)
 {
 	Device device = Application::GetWGPUContext()->device;
 
-	TextureDescriptor depthTextureDesc;
-	depthTextureDesc.dimension = TextureDimension::_2D;
-	depthTextureDesc.format = DepthTexture::_Format;
-	depthTextureDesc.mipLevelCount = 1;
-	depthTextureDesc.sampleCount = 1;
-	depthTextureDesc.size = { width, height, 1 };
-	depthTextureDesc.usage = TextureUsage::RenderAttachment;
-	depthTextureDesc.viewFormatCount = 1;
-	depthTextureDesc.viewFormats = (WGPUTextureFormat*)&DepthTexture::_Format;
-	_depthTexture = device.createTexture(depthTextureDesc);
+	TextureDescriptor textureDesc;
+	textureDesc.dimension = TextureDimension::_2D;
+	textureDesc.format = DepthTexture::_Format;
+	textureDesc.mipLevelCount = 1;
+	textureDesc.sampleCount = 1;
+	textureDesc.size = { width, height, 1 };
+	textureDesc.usage = TextureUsage::RenderAttachment;
+	textureDesc.viewFormatCount = 1;
+	textureDesc.viewFormats = (WGPUTextureFormat*)&DepthTexture::_Format;
+	textureDesc.label = "Depth Texture";
+	_texture = device.createTexture(textureDesc);
 
-	TextureViewDescriptor depthTextureViewDesc;
-	depthTextureViewDesc.aspect = TextureAspect::DepthOnly;
-	depthTextureViewDesc.baseArrayLayer = 0;
-	depthTextureViewDesc.arrayLayerCount = 1;
-	depthTextureViewDesc.baseMipLevel = 0;
-	depthTextureViewDesc.mipLevelCount = 1;
-	depthTextureViewDesc.dimension = TextureViewDimension::_2D;
-	depthTextureViewDesc.format = DepthTexture::_Format;
-	_depthTextureView = _depthTexture.createView(depthTextureViewDesc);
+	TextureViewDescriptor textureViewDesc;
+	textureViewDesc.aspect = TextureAspect::DepthOnly;
+	textureViewDesc.baseArrayLayer = 0;
+	textureViewDesc.arrayLayerCount = 1;
+	textureViewDesc.baseMipLevel = 0;
+	textureViewDesc.mipLevelCount = 1;
+	textureViewDesc.dimension = TextureViewDimension::_2D;
+	textureViewDesc.format = DepthTexture::_Format;
+	textureViewDesc.label = "Depth Texture View";
+	_textureView = _texture.createView(textureViewDesc);
 }
 
 DepthTexture::~DepthTexture()
 {
-	_depthTextureView.release();
-	_depthTexture.destroy();
-	_depthTexture.release();
+	_textureView.release();
+	_texture.destroy();
+	_texture.release();
 }

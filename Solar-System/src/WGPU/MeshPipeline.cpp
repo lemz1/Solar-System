@@ -2,6 +2,7 @@
 
 #include "Core/Application.h"
 #include "Util/AssetManager.h"
+#include "WGPU/DepthTexture.h"
 
 using namespace wgpu;
 
@@ -101,7 +102,7 @@ MeshPipeline::MeshPipeline(
 	DepthStencilState depthStencilState = Default;
 	depthStencilState.depthCompare = CompareFunction::Less;
 	depthStencilState.depthWriteEnabled = true;
-	depthStencilState.format = TextureFormat::Depth24Plus;
+	depthStencilState.format = DepthTexture::GetTextureFormat();
 	depthStencilState.stencilReadMask = 0;
 	depthStencilState.stencilWriteMask = 0;
 
