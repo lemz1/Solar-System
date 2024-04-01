@@ -4,7 +4,7 @@
 
 CelestialBody::CelestialBody()
 {
-	_mesh = IcoSphere::Generate(0);
+	_mesh = IcoSphere::Generate(5);
 }
 
 CelestialBody::~CelestialBody()

@@ -9,11 +9,16 @@ public:
 
 	void OnUpdate(float deltaTime);
 
+	void SetActive(bool isActive);
+	bool IsActive() const { return _isActive; }
+
 	const Camera* GetCamera() const { return _camera; }
 private:
 	Camera* _camera;
 
-	Vec2 _lastMousePos;
+	bool _isActive = true;
+
+	Vec2 _lastMousePos{ 0.0f };
 	float _pitch = 0;
 	float _yaw = 0;
 };

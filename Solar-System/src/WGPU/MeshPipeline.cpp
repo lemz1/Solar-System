@@ -28,24 +28,19 @@ MeshPipeline::MeshPipeline(
 	pipelineDesc.label = "Mesh Pipeline";
 	
 	// Vertex State
-	std::vector<VertexAttribute> vertexAttribs(3);
+	std::vector<VertexAttribute> vertexAttribs(2);
 
 	// Position attribute
 	vertexAttribs[0].shaderLocation = 0;
 	vertexAttribs[0].format = VertexFormat::Float32x3;
 	vertexAttribs[0].offset = 0;
 
-	// TexCoord attribute
+	// Normal attribute
 	vertexAttribs[1].shaderLocation = 1;
-	vertexAttribs[1].format = VertexFormat::Float32x2;
+	vertexAttribs[1].format = VertexFormat::Float32x3;
 	vertexAttribs[1].offset = 0;
 
-	// Normal attribute
-	vertexAttribs[2].shaderLocation = 2;
-	vertexAttribs[2].format = VertexFormat::Float32x3;
-	vertexAttribs[2].offset = 0;
-
-	std::vector<VertexBufferLayout> vertexBufferLayouts(3);
+	std::vector<VertexBufferLayout> vertexBufferLayouts(2);
 	vertexBufferLayouts[0].attributeCount = 1;
 	vertexBufferLayouts[0].attributes = &vertexAttribs.at(0);
 	vertexBufferLayouts[0].arrayStride = 3 * sizeof(float);
@@ -53,13 +48,8 @@ MeshPipeline::MeshPipeline(
 
 	vertexBufferLayouts[1].attributeCount = 1;
 	vertexBufferLayouts[1].attributes = &vertexAttribs.at(1);
-	vertexBufferLayouts[1].arrayStride = 2 * sizeof(float);
+	vertexBufferLayouts[1].arrayStride = 3 * sizeof(float);
 	vertexBufferLayouts[1].stepMode = VertexStepMode::Vertex;
-
-	vertexBufferLayouts[2].attributeCount = 1;
-	vertexBufferLayouts[2].attributes = &vertexAttribs.at(2);
-	vertexBufferLayouts[2].arrayStride = 3 * sizeof(float);
-	vertexBufferLayouts[2].stepMode = VertexStepMode::Vertex;
 
 	pipelineDesc.vertex.bufferCount = (uint32_t)vertexBufferLayouts.size();
 	pipelineDesc.vertex.buffers = vertexBufferLayouts.data();

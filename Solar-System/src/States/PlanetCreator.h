@@ -3,10 +3,9 @@
 #include "Core/State.h"
 #include "WGPU/DepthTexture.h"
 #include "WGPU/MeshPipeline.h"
-#include "WGPU/Mesh.h"
 #include "Util/Camera.h"
 #include "Util/CameraController.h"
-#include "Celestial-Bodies/IcoSphere.h"
+#include "Celestial-Bodies/CelestialBody.h"
 
 class PlanetCreator : public State
 {
@@ -20,7 +19,7 @@ public:
 private:
 	DepthTexture* _depthTexture = nullptr;
 	MeshPipeline* _pipeline = nullptr;
-	Mesh* _mesh = nullptr;
+	CelestialBody* _planet = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;
 };

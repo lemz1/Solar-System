@@ -2,6 +2,7 @@
 
 #include "Core/Application.h"
 #include "Util/AssetManager.h"
+#include "Core/Input.h"
 
 using namespace wgpu;
 
@@ -13,7 +14,7 @@ void PlanetCreator::OnCreate()
 
 	_pipeline = new MeshPipeline("Assets/Shaders/shader.wgsl", "vs_main", "fs_main");
 
-	_mesh = IcoSphere::Generate(3);
+	_planet = new CelestialBody();
 
 	_camera = new Camera(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 	_camera->SetPosition(Vec3(0, 0, -3));
@@ -23,6 +24,15 @@ void PlanetCreator::OnCreate()
 void PlanetCreator::OnUpdate(float deltaTime)
 {
 	Queue queue = Application::GetWGPUContext()->queue;
+
+	if (Input::PressedKey(Key::Enter))
+	{
+		_cameraController->SetActive(true);
+	}
+	else if (Input::PressedKey(Key::Escape))
+	{
+		_cameraController->SetActive(false);
+	}
 
 	_cameraController->OnUpdate(deltaTime);
 
@@ -86,7 +96,7 @@ void PlanetCreator::OnDraw()
 	renderPass.setPipeline(*_pipeline);
 	renderPass.setBindGroup(0, _pipeline->bindGroup, 0, nullptr);
 
-	_mesh->Draw(renderPass);
+	_planet->GetMesh()->Draw(renderPass);
 
 	renderPass.end();
 	renderPass.release();
@@ -107,7 +117,7 @@ void PlanetCreator::OnDestroy()
 {
 	delete _cameraController;
 	delete _camera;
-	delete _mesh;
+	delete _planet;
 	delete _pipeline;
 	delete _depthTexture;
 }

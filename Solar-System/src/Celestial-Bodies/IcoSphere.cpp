@@ -41,20 +41,18 @@ static const std::vector<uint32_t> icosahedronIndices = {
 
 struct Vec3Hash
 {
-	std::size_t operator()(const glm::vec3& v) const
+	std::size_t operator()(const Vec3& v) const
 	{
-		// Combine the hashes of the x, y, and z components
 		std::size_t h1 = std::hash<float>()(v.x);
 		std::size_t h2 = std::hash<float>()(v.y);
 		std::size_t h3 = std::hash<float>()(v.z);
-		return h1 ^ h2 ^ h3; // Example of combining hashes
+		return h1 ^ h2 ^ h3;
 	}
 };
 
-// Equality function for glm::vec3
 struct Vec3Equal
 {
-	bool operator()(const glm::vec3& lhs, const glm::vec3& rhs) const
+	bool operator()(const Vec3& lhs, const Vec3& rhs) const
 	{
 		return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
 	}
@@ -71,8 +69,11 @@ namespace IcoSphere
 		// and project the vertices on the sphere
 		for (uint32_t i = 0; i < subdivisions; i++)
 		{
+			uint32_t frequency = pow(4, i + 1);
 			std::vector<Vec3> newVertices;
+			newVertices.reserve(10 * frequency + 2); // 10 * T + 2
 			std::vector<uint32_t> newIndices;
+			newIndices.reserve(20 * frequency * 3); // 20 * T
 			std::unordered_map<Vec3, uint32_t, Vec3Hash, Vec3Equal> vertexMap;
 
 			for (uint32_t triangleIndex = 0; triangleIndex < icoSphereIndices.size(); triangleIndex += 3)
@@ -81,9 +82,9 @@ namespace IcoSphere
 				Vec3& vertexB = icoSphereVertices[icoSphereIndices[triangleIndex + 1]];
 				Vec3& vertexC = icoSphereVertices[icoSphereIndices[triangleIndex + 2]];
 
-				Vec3 vertexAB = (vertexA + vertexB) / 2.f;
-				Vec3 vertexBC = (vertexB + vertexC) / 2.f;
-				Vec3 vertexCA = (vertexC + vertexA) / 2.f;
+				Vec3 vertexAB = (vertexA + vertexB) / 2.0f;
+				Vec3 vertexBC = (vertexB + vertexC) / 2.0f;
+				Vec3 vertexCA = (vertexC + vertexA) / 2.0f;
 				
 				if (!vertexMap.count(vertexA))
 				{
@@ -144,10 +145,7 @@ namespace IcoSphere
 			icoSphereIndices = newIndices;
 		}
 
-		std::vector<Vec2> icoSphereTexCoords;
-		icoSphereTexCoords.resize(icoSphereVertices.size());
-
 		// normals are the same as vertices
-		return new Mesh(icoSphereVertices, icoSphereTexCoords, icoSphereVertices, icoSphereIndices, {});
+		return new Mesh(icoSphereVertices, icoSphereVertices, icoSphereIndices, {});
 	}
 }
