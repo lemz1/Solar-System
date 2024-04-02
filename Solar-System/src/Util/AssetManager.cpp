@@ -5,6 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image/stb_image.h>
+
+using namespace wgpu;
 
 std::string AssetManager::GetFileContent(const char* filePath)
 {
@@ -45,4 +49,29 @@ wgpu::ShaderModule AssetManager::LoadShaderModule(const char* filePath)
     shaderDesc.hints = nullptr;
     
     return device.createShaderModule(shaderDesc);
+}
+
+Texture2D* AssetManager::GetTexture2D(
+    const char* filePath,
+    TextureFormat textureFormat
+)
+{
+    void* pixels;
+    int width;
+    int height;
+    int numComponents;
+    switch (textureFormat)
+    {
+        case TextureFormat::RGBA8Unorm:
+            pixels = stbi_load(filePath, &width, &height, &numComponents, 4);
+            break;
+        case TextureFormat::RGBA32Float:
+            pixels = stbi_loadf(filePath, &width, &height, &numComponents, 4);
+            break;
+        default:
+            std::cerr << "texture format not supported: " << textureFormat << std::endl;
+            return nullptr;
+    }
+
+    return new Texture2D(pixels, width, height, textureFormat);
 }

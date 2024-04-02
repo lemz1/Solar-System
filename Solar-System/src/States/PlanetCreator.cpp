@@ -14,7 +14,7 @@ void PlanetCreator::OnCreate()
 
 	_pipeline = new MeshPipeline("Assets/Shaders/shader.wgsl", "vs_main", "fs_main");
 
-	_planet = new CelestialBody();
+	_planet = new Planet();
 
 	_camera = new Camera(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 	_camera->SetPosition(Vec3(0, 0, -3));

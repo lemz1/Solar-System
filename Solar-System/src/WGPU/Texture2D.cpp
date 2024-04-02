@@ -55,6 +55,19 @@ void Texture2D::Write(void* pixels)
 {
 	Queue queue = Application::GetWGPUContext()->queue;
 
+	uint8_t bytesPerPixel;
+	switch (_textureFormat)
+	{
+		case TextureFormat::RGBA8Unorm:
+			bytesPerPixel = 4;
+			break;
+		case TextureFormat::RGBA32Float:
+			bytesPerPixel = 16;
+			break;
+		default:
+			std::cerr << "could not write to texture because texture format not supported" << _textureFormat << std::endl;
+			return;
+	}
 	ImageCopyTexture destination;
 	destination.texture = _texture;
 	destination.mipLevel = 0;
@@ -63,16 +76,8 @@ void Texture2D::Write(void* pixels)
 
 	TextureDataLayout source;
 	source.offset = 0;
-	switch (_textureFormat)
-	{
-		case TextureFormat::RGBA8Unorm:
-			source.bytesPerRow = 4 * _width;
-			break;
-		case TextureFormat::RGBA32Float:
-			source.bytesPerRow = 16 * _width;
-			break;
-	}
+	source.bytesPerRow = bytesPerPixel * _width;
 	source.rowsPerImage = _height;
 
-	queue.writeTexture(destination, pixels, _width * _height, source, {_width, _height, 1});
+	queue.writeTexture(destination, pixels, bytesPerPixel * _width * _height, source, {_width, _height, 1});
 }

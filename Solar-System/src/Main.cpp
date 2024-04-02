@@ -2,6 +2,7 @@
 #include "States/PlanetCreator.h"
 
 #include "Celestial-Bodies/IcoSphere.h"
+#include "Util/AssetManager.h"
 
 int main()
 {

@@ -41,11 +41,11 @@ static const std::vector<uint32_t> icosahedronIndices = {
 
 struct Vec3Hash
 {
-	std::size_t operator()(const Vec3& v) const
+	size_t operator()(const Vec3& v) const
 	{
-		std::size_t h1 = std::hash<float>()(v.x);
-		std::size_t h2 = std::hash<float>()(v.y);
-		std::size_t h3 = std::hash<float>()(v.z);
+		size_t h1 = std::hash<float>()(v.x);
+		size_t h2 = std::hash<float>()(v.y);
+		size_t h3 = std::hash<float>()(v.z);
 		return h1 ^ h2 ^ h3;
 	}
 };
@@ -66,14 +66,15 @@ namespace IcoSphere
 		std::vector<uint32_t> icoSphereIndices = icosahedronIndices;
 
 		// subdivide the faces of the icosahedron
-		// and project the vertices on the sphere
+		// and project the vertices onto the sphere
 		for (uint32_t i = 0; i < subdivisions; i++)
 		{
+			// https://en.wikipedia.org/wiki/Geodesic_polyhedron for freqency
 			uint32_t frequency = pow(4, i + 1);
 			std::vector<Vec3> newVertices;
-			newVertices.reserve(10 * frequency + 2); // 10 * T + 2
+			newVertices.reserve(10 * frequency + 2); // 10 * T + 2 (Vertices)
 			std::vector<uint32_t> newIndices;
-			newIndices.reserve(20 * frequency * 3); // 20 * T
+			newIndices.reserve(20 * frequency * 3); // 20 * T (Faces)
 			std::unordered_map<Vec3, uint32_t, Vec3Hash, Vec3Equal> vertexMap;
 
 			for (uint32_t triangleIndex = 0; triangleIndex < icoSphereIndices.size(); triangleIndex += 3)

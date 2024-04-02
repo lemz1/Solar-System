@@ -14,6 +14,7 @@ project "Solar-System"
         "%{wks.location}/vendor/glm/glm",
         "%{wks.location}/vendor/webgpu/include",
         "%{wks.location}/vendor/glfw3webgpu",
+        "%{wks.location}/vendor/stb_image",
     }
 
     links
