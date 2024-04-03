@@ -19,5 +19,4 @@ public:
 private:
 	FractalNoiseSettings _noiseSettings = {};
 	Mesh* _mesh = nullptr;
-
 };

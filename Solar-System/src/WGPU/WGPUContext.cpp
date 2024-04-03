@@ -58,12 +58,16 @@ WGPUContext::WGPUContext(
 
 	device.getLimits(&supportedLimits);
 
-	device.setUncapturedErrorCallback([](ErrorType type, char const* message)
+	// I am using C-Style function here because
+	// I dont want to store the call back
+	// in a unique pointer
+	auto onDeviceError = [](WGPUErrorType type, char const* message, void*)
 	{
-		std::cout << "Device error: type " << type;
-		if (message) std::cout << " (message: " << message << ")";
+		std::cout << "Uncaptured device error: type " << type;
+		if (message) std::cout << " (" << message << ")";
 		std::cout << std::endl;
-	});
+	};
+	wgpuDeviceSetUncapturedErrorCallback(device, onDeviceError, nullptr);
 
 	swapChainFormat = surface.getPreferredFormat(adapter);
 

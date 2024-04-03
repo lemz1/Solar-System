@@ -1,21 +1,24 @@
 #include "Planet.h"
 
-#include "Celestial-Bodies/IcoSphere.h"
 #include "Util/AssetManager.h"
+#include "Celestial-Bodies/IcoSphere.h"
 
 using namespace wgpu;
 
+static IcoSphere::MeshData IcoSphereData;
+
 Planet::Planet()
 {
+	if (IcoSphereData.vertices.size() == 0)
+	{
+		IcoSphereData = IcoSphere::Generate(5);
+	}
+
 	Generate();
-	//_surfaceTexture = AssetManager::LoadTexture2D("Assets/Images/TunisianSpongebob.jpg", TextureFormat::RGBA8Unorm);
-	//_normalMap = AssetManager::LoadTexture2D("Assets/Images/TunisianSpongebob.jpg", TextureFormat::RGBA8Unorm);
 }
 
 Planet::~Planet()
 {
-	//delete _normalMap;
-	//delete _surfaceTexture;
 	delete _mesh;
 }
 
@@ -25,5 +28,5 @@ void Planet::Generate()
 	{
 		delete _mesh;
 	}
-	_mesh = IcoSphere::Generate(5);
+	_mesh = new Mesh(IcoSphereData.vertices, IcoSphereData.normals, IcoSphereData.indices);
 }

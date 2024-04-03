@@ -1,8 +1,7 @@
 #include "IcoSphere.h"
 
-#include <vector>
 #include <unordered_map>
-#include "Util/Math.h"
+#include "Debug/Timer.h"
 
 // https://schneide.blog/2016/07/15/generating-an-icosphere-in-c/
 // using this for icosahedron tables
@@ -60,8 +59,10 @@ struct Vec3Equal
 
 namespace IcoSphere
 {
-	Mesh* Generate(uint32_t subdivisions)
+	MeshData Generate(uint32_t subdivisions)
 	{
+		PROFILE_FUNCTION("IcoSphere Generation");
+
 		std::vector<Vec3> icoSphereVertices = icosahedronVertices;
 		std::vector<uint32_t> icoSphereIndices = icosahedronIndices;
 
@@ -147,6 +148,6 @@ namespace IcoSphere
 		}
 
 		// normals are the same as vertices
-		return new Mesh(icoSphereVertices, icoSphereVertices, icoSphereIndices);
+		return MeshData{ icoSphereVertices, icoSphereVertices, icoSphereIndices };
 	}
 }

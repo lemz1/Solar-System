@@ -41,7 +41,7 @@ project "Solar-System"
         {
             "mkdir \"%{cfg.targetdir}/Assets\"",
             "{COPY} \"%{prj.location}Assets\" \"%{cfg.targetdir}/Assets\"",
-            "{COPY} \"%{wks.location}/vendor/webgpu/bin/windows-x86_64/wgpu_native.dll\" \"%{cfg.targetdir}\"",
+            "{COPY} \"%{wks.location}/vendor/webgpu/bin/windows-%{cfg.architecture}/wgpu_native.dll\" \"%{cfg.targetdir}\"",
         }
 
         
@@ -53,7 +53,7 @@ project "Solar-System"
         postbuildcommands
         {
             "{COPY} \""..absWksPath.."/Solar-System/Assets\" \"%{cfg.targetdir}\"",
-            "{COPY} \""..absWksPath.."/vendor/webgpu/bin/linux-x86_64/libwgpu_native.so\" \"%{cfg.targetdir}\"",
+            "{COPY} \""..absWksPath.."/vendor/webgpu/bin/linux-%{cfg.architecture}/libwgpu_native.so\" \"%{cfg.targetdir}\"",
         }
 
     filter {}
