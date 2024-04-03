@@ -12,7 +12,7 @@ void PlanetCreator::OnCreate()
 
 	_depthTexture = new DepthTexture(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 
-	_pipeline = new MeshPipeline("Assets/Shaders/shader.wgsl", "vs_main", "fs_main");
+	_pipeline = new PlanetPipeline("Assets/Shaders/shader.wgsl", "vs_main", "fs_main");
 
 	_planet = new Planet();
 
@@ -36,10 +36,10 @@ void PlanetCreator::OnUpdate(float deltaTime)
 
 	_cameraController->OnUpdate(deltaTime);
 
-	MeshUniform uniform = {};
+	PlanetUniform uniform = {};
 	uniform.modelViewProjection = _camera->GetProjection() * _camera->GetInverseView();
 
-	queue.writeBuffer(_pipeline->uniformBuffer, 0, &uniform, sizeof(MeshUniform));
+	queue.writeBuffer(_pipeline->uniformBuffer, 0, &uniform, sizeof(PlanetUniform));
 }
 
 void PlanetCreator::OnDraw()
@@ -93,7 +93,7 @@ void PlanetCreator::OnDraw()
 
 	RenderPassEncoder renderPass = encoder.beginRenderPass(renderPassDesc);
 
-	renderPass.setPipeline(*_pipeline);
+	renderPass.setPipeline(_pipeline->pipeline);
 	renderPass.setBindGroup(0, _pipeline->bindGroup, 0, nullptr);
 
 	_planet->GetMesh()->Draw(renderPass);

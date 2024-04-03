@@ -1,4 +1,4 @@
-#include "MeshPipeline.h"
+#include "PlanetPipeline.h"
 
 #include "Core/Application.h"
 #include "Util/AssetManager.h"
@@ -6,13 +6,15 @@
 
 using namespace wgpu;
 
-MeshPipeline::MeshPipeline(
+PlanetPipeline::PlanetPipeline(
 	const char* shaderPath,
 	const char* vertexEntryPoint,
 	const char* fragmentEntryPoint
 )
 :	shaderModule(nullptr),
 	bindGroupLayout(nullptr),
+	surfaceTexture(nullptr),
+	normalMap(nullptr),
 	uniformBuffer(nullptr),
 	bindGroup(nullptr),
 	layout(nullptr),
@@ -24,9 +26,12 @@ MeshPipeline::MeshPipeline(
 
 	shaderModule = AssetManager::LoadShaderModule(shaderPath);
 
+	surfaceTexture = AssetManager::LoadTexture2D("Assets/Images/Wall_Tiles_Stone_001_basecolor.jpg", TextureFormat::RGBA8Unorm);
+	normalMap = AssetManager::LoadTexture2D("Assets/Images/Wall_Tiles_Stone_001_normal.jpg", TextureFormat::RGBA8Unorm);
+
 	RenderPipelineDescriptor pipelineDesc;
-	pipelineDesc.label = "Mesh Pipeline";
-	
+	pipelineDesc.label = "Planet Pipeline";
+
 	// Vertex State
 	std::vector<VertexAttribute> vertexAttribs(2);
 
@@ -88,7 +93,7 @@ MeshPipeline::MeshPipeline(
 	fragmentState.targets = &colorTarget;
 
 	pipelineDesc.fragment = &fragmentState;
-	
+
 	DepthStencilState depthStencilState = Default;
 	depthStencilState.depthCompare = CompareFunction::Less;
 	depthStencilState.depthWriteEnabled = true;
@@ -97,42 +102,78 @@ MeshPipeline::MeshPipeline(
 	depthStencilState.stencilWriteMask = 0;
 
 	pipelineDesc.depthStencil = &depthStencilState;
- 
+
 	pipelineDesc.multisample.count = 1;
 	pipelineDesc.multisample.mask = ~0u;
 	pipelineDesc.multisample.alphaToCoverageEnabled = false;
 
 	// Bind Groups (Uniforms)
-	BindGroupLayoutEntry bindingLayout = Default;
-	bindingLayout.binding = 0;
-	bindingLayout.visibility = ShaderStage::Vertex;
-	bindingLayout.buffer.type = BufferBindingType::Uniform;
-	bindingLayout.buffer.minBindingSize = sizeof(MeshUniform);
+	std::vector<BindGroupLayoutEntry> bindingLayoutEntries(3);
+
+	{
+		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
+		bindingLayout.binding = 0;
+		bindingLayout.visibility = ShaderStage::Vertex;
+		bindingLayout.buffer.type = BufferBindingType::Uniform;
+		bindingLayout.buffer.minBindingSize = sizeof(PlanetUniform);
+	}
+
+	{
+		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[1];
+		bindingLayout.binding = 1;
+		bindingLayout.visibility = ShaderStage::Fragment;
+		bindingLayout.texture.sampleType = TextureSampleType::Float;
+		bindingLayout.texture.viewDimension = TextureViewDimension::_2D;
+	}
+
+	{
+		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[2];
+		bindingLayout.binding = 2;
+		bindingLayout.visibility = ShaderStage::Fragment;
+		bindingLayout.texture.sampleType = TextureSampleType::Float;
+		bindingLayout.texture.viewDimension = TextureViewDimension::_2D;
+	}
 
 	BindGroupLayoutDescriptor bindGroupLayoutDesc{};
-	bindGroupLayoutDesc.entryCount = 1;
-	bindGroupLayoutDesc.entries = &bindingLayout;
+	bindGroupLayoutDesc.entryCount = bindingLayoutEntries.size();
+	bindGroupLayoutDesc.entries = bindingLayoutEntries.data();
 	bindGroupLayout = device.createBindGroupLayout(bindGroupLayoutDesc);
 
 	BufferDescriptor bufferDesc{};
-	bufferDesc.size = sizeof(MeshUniform);
+	bufferDesc.size = sizeof(PlanetUniform);
 	bufferDesc.usage = BufferUsage::CopyDst | BufferUsage::Uniform;
 	bufferDesc.mappedAtCreation = false;
 	uniformBuffer = device.createBuffer(bufferDesc);
 
-	MeshUniform uniform = {};
-	queue.writeBuffer(uniformBuffer, 0, &uniform, sizeof(MeshUniform));
+	PlanetUniform uniform = {};
+	queue.writeBuffer(uniformBuffer, 0, &uniform, sizeof(PlanetUniform));
 
-	BindGroupEntry binding{};
-	binding.binding = 0;
-	binding.buffer = uniformBuffer;
-	binding.offset = 0;
-	binding.size = sizeof(MeshUniform);
+	std::vector<BindGroupEntry> bindings(3);
+
+	{
+		BindGroupEntry& binding = bindings[0];
+		binding.binding = 0;
+		binding.offset = 0;
+		binding.buffer = uniformBuffer;
+		binding.size = sizeof(PlanetUniform);
+	}
+
+	{
+		BindGroupEntry& binding = bindings[1];
+		binding.binding = 1;
+		binding.textureView = surfaceTexture->GetTextureView();
+	}
+
+	{
+		BindGroupEntry& binding = bindings[2];
+		binding.binding = 2;
+		binding.textureView = normalMap->GetTextureView();
+	}
 
 	BindGroupDescriptor bindGroupDesc{};
 	bindGroupDesc.layout = bindGroupLayout;
-	bindGroupDesc.entryCount = bindGroupLayoutDesc.entryCount;
-	bindGroupDesc.entries = &binding;
+	bindGroupDesc.entryCount = bindings.size();
+	bindGroupDesc.entries = bindings.data();
 	bindGroup = device.createBindGroup(bindGroupDesc);
 
 	PipelineLayoutDescriptor layoutDesc;
@@ -144,13 +185,16 @@ MeshPipeline::MeshPipeline(
 	pipeline = device.createRenderPipeline(pipelineDesc);
 }
 
-MeshPipeline::~MeshPipeline()
+PlanetPipeline::~PlanetPipeline()
 {
 	pipeline.release();
 	layout.release();
 	bindGroup.release();
 	uniformBuffer.destroy();
+	delete surfaceTexture;
+	delete normalMap;
 	uniformBuffer.release();
 	bindGroupLayout.release();
 	shaderModule.release();
 }
+

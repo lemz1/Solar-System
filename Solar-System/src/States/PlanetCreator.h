@@ -2,10 +2,10 @@
 
 #include "Core/State.h"
 #include "WGPU/DepthTexture.h"
-#include "WGPU/MeshPipeline.h"
 #include "Util/Camera.h"
 #include "Util/CameraController.h"
 #include "Celestial-Bodies/Planet.h"
+#include "Celestial-Bodies/PlanetPipeline.h"
 
 class PlanetCreator : public State
 {
@@ -18,7 +18,7 @@ public:
 	void OnDestroy() override;
 private:
 	DepthTexture* _depthTexture = nullptr;
-	MeshPipeline* _pipeline = nullptr;
+	PlanetPipeline* _pipeline = nullptr;
 	Planet* _planet = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;

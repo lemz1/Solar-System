@@ -19,6 +19,5 @@ public:
 private:
 	FractalNoiseSettings _noiseSettings = {};
 	Mesh* _mesh = nullptr;
-	Texture2D* _surfaceTexture = nullptr;
-	Texture2D* _normalMap = nullptr;
+
 };

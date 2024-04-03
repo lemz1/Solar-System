@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Util/Math.h"
-#include "WGPU/MeshPipeline.h"
 
 #include <webgpu/webgpu.hpp>
 #include <vector>
@@ -12,8 +11,7 @@ public:
     Mesh(
         const std::vector<Vec3>& vertices,
         const std::vector<Vec3>& normals,
-        const std::vector<uint32_t>& indices,
-        const MeshUniform& uniform
+        const std::vector<uint32_t>& indices
     );
     ~Mesh();
 
@@ -27,8 +25,6 @@ public:
     const std::vector<uint32_t>& GetIndices() const { return _indices; }
 
     void Draw(wgpu::RenderPassEncoder renderPass) const;
-public:
-    MeshUniform uniform;
 private:
     std::vector<Vec3> _vertices;
     std::vector<Vec3> _normals;

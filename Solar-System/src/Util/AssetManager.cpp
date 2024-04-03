@@ -51,7 +51,7 @@ wgpu::ShaderModule AssetManager::LoadShaderModule(const char* filePath)
     return device.createShaderModule(shaderDesc);
 }
 
-Texture2D* AssetManager::GetTexture2D(
+Texture2D* AssetManager::LoadTexture2D(
     const char* filePath,
     TextureFormat textureFormat
 )

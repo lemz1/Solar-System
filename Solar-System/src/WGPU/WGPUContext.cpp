@@ -40,13 +40,14 @@ WGPUContext::WGPUContext(
 	requiredLimits.limits.maxVertexBufferArrayStride = 16 * sizeof(float);
 	requiredLimits.limits.minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment;
 	requiredLimits.limits.minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment;
-	requiredLimits.limits.maxInterStageShaderComponents = 5;
+	requiredLimits.limits.maxInterStageShaderComponents = 6;
 	requiredLimits.limits.maxBindGroups = 1;
 	requiredLimits.limits.maxUniformBuffersPerShaderStage = 1;
-	requiredLimits.limits.maxUniformBufferBindingSize = 16 * sizeof(float);
+	requiredLimits.limits.maxUniformBufferBindingSize = 64 * sizeof(float);
 	requiredLimits.limits.maxTextureDimension1D = 2160;
 	requiredLimits.limits.maxTextureDimension2D = 3840;
 	requiredLimits.limits.maxTextureArrayLayers = 1;
+	requiredLimits.limits.maxSampledTexturesPerShaderStage = 2;
 
 	DeviceDescriptor deviceDesc;
 	deviceDesc.label = "Device";

@@ -147,6 +147,6 @@ namespace IcoSphere
 		}
 
 		// normals are the same as vertices
-		return new Mesh(icoSphereVertices, icoSphereVertices, icoSphereIndices, {});
+		return new Mesh(icoSphereVertices, icoSphereVertices, icoSphereIndices);
 	}
 }

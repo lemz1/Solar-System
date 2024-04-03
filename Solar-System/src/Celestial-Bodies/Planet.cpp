@@ -1,20 +1,21 @@
 #include "Planet.h"
 
 #include "Celestial-Bodies/IcoSphere.h"
+#include "Util/AssetManager.h"
 
 using namespace wgpu;
 
 Planet::Planet()
 {
 	Generate();
-	//_surfaceTexture = new Texture2D(nullptr, 256, 256, TextureFormat::RGBA8Unorm);
-	//_normalMap = new Texture2D(nullptr, 256, 256, TextureFormat::RGBA8Unorm);
+	//_surfaceTexture = AssetManager::LoadTexture2D("Assets/Images/TunisianSpongebob.jpg", TextureFormat::RGBA8Unorm);
+	//_normalMap = AssetManager::LoadTexture2D("Assets/Images/TunisianSpongebob.jpg", TextureFormat::RGBA8Unorm);
 }
 
 Planet::~Planet()
 {
-	delete _normalMap;
-	delete _surfaceTexture;
+	//delete _normalMap;
+	//delete _surfaceTexture;
 	delete _mesh;
 }
 

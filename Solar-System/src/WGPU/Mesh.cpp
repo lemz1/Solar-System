@@ -7,13 +7,11 @@ using namespace wgpu;
 Mesh::Mesh(
     const std::vector<Vec3>& vertices,
     const std::vector<Vec3>& normals,
-    const std::vector<uint32_t>& indices,
-    const MeshUniform& uniform
+    const std::vector<uint32_t>& indices
 )
 :   _vertexBuffer(nullptr),
     _normalBuffer(nullptr),
-    _indexBuffer(nullptr),
-    uniform(uniform)
+    _indexBuffer(nullptr)
 {
     SetVertices(vertices);
     SetNormals(normals);

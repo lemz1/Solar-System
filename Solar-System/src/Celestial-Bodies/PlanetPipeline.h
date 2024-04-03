@@ -1,30 +1,29 @@
 #pragma once
 
+#include "Util/Math.h"
+#include "WGPU/Texture2D.h"
 #include <webgpu/webgpu.hpp>
-#include <glm/glm.hpp>
-#include <vector>
 
-struct MeshUniform
+struct PlanetUniform
 {
-	glm::mat4 modelViewProjection;
+	Mat4 modelViewProjection;
 };
 
-class MeshPipeline
+class PlanetPipeline
 {
 public:
 	// shaderModule destruction is handled by this instance
-	MeshPipeline(
+	PlanetPipeline(
 		const char* shaderPath,
 		const char* vertexEntryPoint,
 		const char* fragmentEntryPoint
 	);
-	~MeshPipeline();
-
-	operator wgpu::RenderPipeline() { return pipeline; }
-	operator wgpu::ShaderModule() { return shaderModule; }
+	~PlanetPipeline();
 public:
 	wgpu::ShaderModule shaderModule;
 	wgpu::BindGroupLayout bindGroupLayout;
+	Texture2D* surfaceTexture;
+	Texture2D* normalMap;
 	wgpu::Buffer uniformBuffer;
 	wgpu::BindGroup bindGroup;
 	wgpu::PipelineLayout layout;

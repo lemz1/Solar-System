@@ -9,7 +9,7 @@ class AssetManager
 public:
 	static std::string GetFileContent(const char* filePath);
 	static wgpu::ShaderModule LoadShaderModule(const char* filePath);
-	static Texture2D* GetTexture2D(
+	static Texture2D* LoadTexture2D(
 		const char* filePath,
 		wgpu::TextureFormat textureFormat
 	);
