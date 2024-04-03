@@ -49,7 +49,30 @@ set(SOURCES
     "src/celestial-bodies/PlanetPipeline.cpp"
 )
 
-add_executable(Solar-System ${SOURCES})
+set(HEADERS
+    "src/wgpu/DepthTexture.h"
+    "src/wgpu/Mesh.h"
+    "src/wgpu/Texture2D.h"
+    "src/wgpu/WGPUContext.h"
+    "src/util/AssetManager.h"
+    "src/util/Camera.h"
+    "src/util/CameraController.h"
+    "src/util/Math.h"
+    "src/util/FractalNoiseSettings.h"
+    "src/states/PlanetCreator.h"
+    "src/debug/Timer.h"
+    "src/core/Application.h"
+    "src/core/KeyCode.h"
+    "src/core/MouseCode.h"
+    "src/core/State.h"
+    "src/core/Input.h"
+    "src/core/Window.h"
+    "src/celestial-bodies/IcoSphere.h"
+    "src/celestial-bodies/Planet.h"
+    "src/celestial-bodies/PlanetPipeline.h"
+)
+
+add_executable(Solar-System ${SOURCES} ${HEADERS})
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     if(MSVC)
