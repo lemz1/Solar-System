@@ -74,22 +74,6 @@ set(HEADERS
 
 add_executable(Solar-System ${SOURCES} ${HEADERS})
 
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-    if(MSVC)
-        target_compile_options(Solar-System PRIVATE /Od)
-    else()
-        target_compile_options(Solar-System PRIVATE -O0)
-    endif()
-endif()
-
-if(CMAKE_BUILD_TYPE MATCHES Release)
-    if(MSVC)
-        target_compile_options(Solar-System PRIVATE /Ox)
-    else()
-        target_compile_options(Solar-System PRIVATE -O3)
-    endif()
-endif()
-
 target_link_libraries(Solar-System PRIVATE 
     glfw    
     GLFW3WebGPU
@@ -103,13 +87,10 @@ target_include_directories(Solar-System PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-add_custom_target(copy_assets
+add_custom_command(
+    TARGET Solar-System POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/assets
+    COMMENT "Copying 'assets' to '${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}'..."
 )
-
-# Make the Solar-System target depend on the copy_assets target
-add_dependencies(Solar-System copy_assets)
-
-set(TARGET_FILE_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 target_copy_webgpu_binaries(Solar-System)

@@ -11,4 +11,5 @@ Makefile
 
 ## visual studio
 .vs
-.vscode
+.vscode/*
+!.vscode/launch.json
