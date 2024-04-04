@@ -14,7 +14,6 @@ PlanetPipeline::PlanetPipeline(
 :	shaderModule(nullptr),
 	bindGroupLayout(nullptr),
 	surfaceTexture(nullptr),
-	normalMap(nullptr),
 	uniformBuffer(nullptr),
 	bindGroup(nullptr),
 	layout(nullptr),
@@ -27,7 +26,6 @@ PlanetPipeline::PlanetPipeline(
 	shaderModule = AssetManager::LoadShaderModule(shaderPath);
 
 	surfaceTexture = AssetManager::LoadTexture2D("assets/images/Wall_Tiles_Stone_001_basecolor.jpg", TextureFormat::RGBA8Unorm);
-	normalMap = AssetManager::LoadTexture2D("assets/images/Wall_Tiles_Stone_001_normal.jpg", TextureFormat::RGBA8Unorm);
 
 	RenderPipelineDescriptor pipelineDesc;
 	pipelineDesc.label = "Planet Pipeline";
@@ -119,7 +117,7 @@ PlanetPipeline::PlanetPipeline(
 	pipelineDesc.multisample.alphaToCoverageEnabled = false;
 
 	// Bind Groups (Uniforms)
-	std::vector<BindGroupLayoutEntry> bindingLayoutEntries(3);
+	std::vector<BindGroupLayoutEntry> bindingLayoutEntries(2);
 
 	{
 		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
@@ -132,14 +130,6 @@ PlanetPipeline::PlanetPipeline(
 	{
 		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[1];
 		bindingLayout.binding = 1;
-		bindingLayout.visibility = ShaderStage::Fragment;
-		bindingLayout.texture.sampleType = TextureSampleType::Float;
-		bindingLayout.texture.viewDimension = TextureViewDimension::_2D;
-	}
-
-	{
-		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[2];
-		bindingLayout.binding = 2;
 		bindingLayout.visibility = ShaderStage::Fragment;
 		bindingLayout.texture.sampleType = TextureSampleType::Float;
 		bindingLayout.texture.viewDimension = TextureViewDimension::_2D;
@@ -159,7 +149,7 @@ PlanetPipeline::PlanetPipeline(
 	PlanetUniform uniform = {};
 	queue.writeBuffer(uniformBuffer, 0, &uniform, sizeof(PlanetUniform));
 
-	std::vector<BindGroupEntry> bindings(3);
+	std::vector<BindGroupEntry> bindings(2);
 
 	{
 		BindGroupEntry& binding = bindings[0];
@@ -173,12 +163,6 @@ PlanetPipeline::PlanetPipeline(
 		BindGroupEntry& binding = bindings[1];
 		binding.binding = 1;
 		binding.textureView = surfaceTexture->GetTextureView();
-	}
-
-	{
-		BindGroupEntry& binding = bindings[2];
-		binding.binding = 2;
-		binding.textureView = normalMap->GetTextureView();
 	}
 
 	BindGroupDescriptor bindGroupDesc{};
@@ -203,7 +187,6 @@ PlanetPipeline::~PlanetPipeline()
 	bindGroup.release();
 	uniformBuffer.destroy();
 	delete surfaceTexture;
-	delete normalMap;
 	uniformBuffer.release();
 	bindGroupLayout.release();
 	shaderModule.release();

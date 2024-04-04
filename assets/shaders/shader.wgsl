@@ -5,7 +5,6 @@ struct UniformData
 
 @group(0) @binding(0) var<uniform> uniformData: UniformData;
 @group(0) @binding(1) var surfaceTexture: texture_2d<f32>;
-@group(0) @binding(2) var normalMap: texture_2d<f32>;
 
 struct VertexInput {
 	@location(0) position: vec3<f32>,
@@ -58,15 +57,6 @@ fn triplanar_map(
 	return color_front + color_side + color_top;
 }
 
-fn unpack_normal_from_normal_map(
-	position: vec3<f32>,
-	normal: vec3<f32>,
-	normalTexture: texture_2d<f32>
-) -> vec3<f32> {
-	let normalColor: vec3<f32> = triplanar_map(position, normal, normalTexture);
-	return normalColor * 2.0 - 1.0;
-}
-
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
@@ -80,10 +70,8 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 	let color: vec3<f32> = triplanar_map(in.object_position, in.normal, surfaceTexture);
-	var normal: vec3<f32> = unpack_normal_from_normal_map(in.object_position, in.normal, normalMap);
-	normal = mix(in.normal, normal, 0.5);
 
-	let lit_color: vec3<f32> = calculate_lighting(color, normal);
+	let lit_color: vec3<f32> = calculate_lighting(color, in.normal);
 	let gamma_corrected_color: vec3<f32> = pow(lit_color, vec3<f32>(2.2));
 	return vec4<f32>(gamma_corrected_color, 1.0);
 }

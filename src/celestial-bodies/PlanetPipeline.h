@@ -23,7 +23,6 @@ public:
 	wgpu::ShaderModule shaderModule;
 	wgpu::BindGroupLayout bindGroupLayout;
 	Texture2D* surfaceTexture;
-	Texture2D* normalMap;
 	wgpu::Buffer uniformBuffer;
 	wgpu::BindGroup bindGroup;
 	wgpu::PipelineLayout layout;
