@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include "core/Input.h"
+
 Application* Application::_Instance = nullptr;
 
 Application::Application(
@@ -43,6 +45,8 @@ void Application::Run()
 		float newTime = glfwGetTime();
 		float deltaTime = newTime - _time;
 		_time = newTime;
+
+		Input::_Scroll = Vec2(0.0f, 0.0f);
 
 		glfwPollEvents();
 

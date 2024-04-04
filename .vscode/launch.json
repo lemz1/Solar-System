@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Windows Debug",
+            "program": "${workspaceFolder}/export/Windows/Debug/Solar-System.exe",
+            "preLaunchTask": "Build Windows Debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/export/Windows/Debug"
+        },
+        {
+            "name": "Run Windows Release",
+            "program": "${workspaceFolder}/export/Windows/Release/Solar-System.exe",
+            "preLaunchTask": "Build Windows Release",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/export/Windows/Release"
+        },
+        {
+            "name": "Run Linux Debug",
+            "program": "${workspaceFolder}/export/Linux/Debug/Solar-System.exe",
+            "preLaunchTask": "Build Linux Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/export/Linux/Debug"
+        },
+        {
+            "name": "Run Linux Release",
+            "program": "${workspaceFolder}/export/Linux/Release/Solar-System.exe",
+            "preLaunchTask": "Build Linux Release",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/export/Linux/Release"
+        }
+    ]
+}

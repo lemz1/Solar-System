@@ -6,7 +6,14 @@
 
 struct PlanetUniform
 {
-	Mat4 modelViewProjection;
+	Mat4 viewProjection;
+	Vec2 stScale;
+	Vec2 stTiling;
+	Vec2 nmScale;
+	Vec2 nmTiling;
+	float stBlendSharpness;
+	float nmBlendSharpness;
+	char _padding[8]; // 8 byte padding 
 };
 
 class PlanetPipeline
@@ -22,7 +29,9 @@ public:
 public:
 	wgpu::ShaderModule shaderModule;
 	wgpu::BindGroupLayout bindGroupLayout;
+	wgpu::Sampler sampler;
 	Texture2D* surfaceTexture;
+	Texture2D* normalMap;
 	wgpu::Buffer uniformBuffer;
 	wgpu::BindGroup bindGroup;
 	wgpu::PipelineLayout layout;

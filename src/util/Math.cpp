@@ -15,3 +15,14 @@ float Math::Lerp(
 {
     return a + t * (b - a);
 }
+
+float Math::Clamp(
+	float value, 
+	float min, 
+	float max
+)
+{
+    return (value < min) ? min
+		:  (value > max) ? max
+		:				 value;
+}

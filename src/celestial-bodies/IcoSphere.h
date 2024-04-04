@@ -7,9 +7,9 @@ namespace IcoSphere
 {
 	struct MeshData
 	{
-		std::vector<Vec3> vertices;
-		std::vector<Vec3> normals;
-		std::vector<uint32_t> indices;
+		Vector<Vec3> vertices;
+		Vector<Vec3> normals;
+		Vector<uint32_t> indices;
 	};
 
 	MeshData Generate(uint32_t lod);

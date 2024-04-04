@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cassert>
 
+#include "core/Input.h"
+
 Window::Window(
 	uint32_t width, 
 	uint32_t height, 
@@ -27,6 +29,10 @@ Window::Window(
 		std::cerr << "Could not create window!" << std::endl;
 		assert(false);
 	}
+
+	glfwSetScrollCallback(_handle, [](GLFWwindow* window, double x_offset, double y_offset) {
+		Input::_Scroll = Vec2((float)x_offset, (float)y_offset);
+	});
 }
 
 Window::~Window()

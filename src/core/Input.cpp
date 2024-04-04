@@ -2,6 +2,8 @@
 
 #include "core/Application.h"
 
+Vec2 Input::_Scroll = Vec2(0.0f, 0.0f);
+
 bool Input::PressedKey(Key key)
 {
     GLFWwindow* window = Application::GetWindow()->GetHandle();

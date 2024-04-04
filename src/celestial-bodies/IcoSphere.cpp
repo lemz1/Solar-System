@@ -9,13 +9,13 @@ static constexpr float X = 0.525731112119133606f;
 static constexpr float Z = 0.850650808352039932f;
 static constexpr float N = 0.f;
 
-static const std::vector<Vec3> icosahedronVertices = {
+static const Vector<Vec3> icosahedronVertices = {
 	{-X,N,Z}, {X,N,Z  }, {-X,N,-Z}, {X,N,-Z },
 	{N,Z,X }, {N,Z,-X }, {N,-Z,X }, {N,-Z,-X},
 	{Z,X,N }, {-Z,X, N}, {Z,-X,N }, {-Z,-X,N}
 };
 
-static const std::vector<uint32_t> icosahedronIndices = {
+static const Vector<uint32_t> icosahedronIndices = {
 	0,4,1,
 	0,9,4,
 	9,5,4, 
@@ -63,8 +63,8 @@ namespace IcoSphere
 	{
 		PROFILE_FUNCTION("IcoSphere Generation");
 
-		std::vector<Vec3> icoSphereVertices = icosahedronVertices;
-		std::vector<uint32_t> icoSphereIndices = icosahedronIndices;
+		Vector<Vec3> icoSphereVertices = icosahedronVertices;
+		Vector<uint32_t> icoSphereIndices = icosahedronIndices;
 
 		// subdivide the faces of the icosahedron
 		// and project the vertices onto the sphere
@@ -72,9 +72,9 @@ namespace IcoSphere
 		{
 			// https://en.wikipedia.org/wiki/Geodesic_polyhedron for T
 			uint32_t T = pow(4, i + 1);
-			std::vector<Vec3> newVertices;
+			Vector<Vec3> newVertices;
 			newVertices.reserve(10 * T + 2); // 10 * T + 2 (Vertices)
-			std::vector<uint32_t> newIndices;
+			Vector<uint32_t> newIndices;
 			newIndices.reserve(20 * T * 3); // 20 * T (Faces)
 			std::unordered_map<Vec3, uint32_t, Vec3Hash, Vec3Equal> vertexMap;
 

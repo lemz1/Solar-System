@@ -5,9 +5,9 @@
 using namespace wgpu;
 
 Mesh::Mesh(
-    const std::vector<Vec3>& vertices,
-    const std::vector<Vec3>& normals,
-    const std::vector<uint32_t>& indices
+    const Vector<Vec3>& vertices,
+    const Vector<Vec3>& normals,
+    const Vector<uint32_t>& indices
 )
 :   _vertexBuffer(nullptr),
     _normalBuffer(nullptr),
@@ -28,7 +28,7 @@ Mesh::~Mesh()
     _indexBuffer.release();
 }
 
-void Mesh::SetVertices(const std::vector<Vec3>& vertices)
+void Mesh::SetVertices(const Vector<Vec3>& vertices)
 {
     _vertices = vertices;
 
@@ -44,7 +44,7 @@ void Mesh::SetVertices(const std::vector<Vec3>& vertices)
     queue.writeBuffer(_vertexBuffer, 0, _vertices.data(), bufferDesc.size);
 }
 
-void Mesh::SetNormals(const std::vector<Vec3>& normals)
+void Mesh::SetNormals(const Vector<Vec3>& normals)
 {
     _normals = normals;
 
@@ -60,7 +60,7 @@ void Mesh::SetNormals(const std::vector<Vec3>& normals)
     queue.writeBuffer(_normalBuffer, 0, _normals.data(), bufferDesc.size);
 }
 
-void Mesh::SetIndices(const std::vector<uint32_t>& indices)
+void Mesh::SetIndices(const Vector<uint32_t>& indices)
 {
     _indices = indices;
 

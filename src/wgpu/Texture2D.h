@@ -1,6 +1,7 @@
 #pragma once
 
 #include <webgpu/webgpu.hpp>
+#include "util/Math.h"
 
 class Texture2D
 {

@@ -12,7 +12,7 @@ void PlanetCreator::OnCreate()
 
 	_depthTexture = new DepthTexture(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 
-	_pipeline = new PlanetPipeline("assets/shaders/shader.wgsl", "vs_main", "fs_main");
+	_pipeline = new PlanetPipeline("assets/shaders/shader.wgsl", "vsMain", "fsMain");
 
 	_planet = new Planet();
 
@@ -27,7 +27,13 @@ void PlanetCreator::OnUpdate(float deltaTime)
 	_cameraController->OnUpdate(deltaTime);
 
 	PlanetUniform uniform = {};
-	uniform.modelViewProjection = _camera->GetProjection() * _camera->GetInverseView();
+	uniform.viewProjection = _camera->GetProjection() * _camera->GetInverseView();
+	uniform.stScale = Vec2(1.0f);
+	uniform.stTiling = Vec2(1.0f);
+	uniform.nmScale = Vec2(1.0f);
+	uniform.nmTiling = Vec2(1.0f);
+	uniform.stBlendSharpness = 1.0f;
+	uniform.nmBlendSharpness = 1.0f;
 
 	queue.writeBuffer(_pipeline->uniformBuffer, 0, &uniform, sizeof(PlanetUniform));
 }

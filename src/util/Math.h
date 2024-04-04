@@ -1,15 +1,9 @@
 #pragma once
 
+#include "util/Types.h"
 #include <cmath>
-#include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-
-typedef glm::vec2 Vec2;
-typedef glm::vec3 Vec3;
-typedef glm::vec4 Vec4;
-typedef glm::quat Quat;
-typedef glm::mat4 Mat4;
 
 class Math
 {
@@ -19,5 +13,10 @@ public:
 		float a,
 		float b,
 		float t
+	);
+	static float Clamp(
+		float value,
+		float min,
+		float max
 	);
 };

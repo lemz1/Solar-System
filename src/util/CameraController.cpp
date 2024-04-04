@@ -24,6 +24,13 @@ void CameraController::OnUpdate(float deltaTime)
 		deltaMousePos = Vec2(0.0f);
 	}
 
+	// zoom
+	Vec2 scroll = Input::GetScroll();
+	float distance = _distance - scroll.y * 0.5f;
+	distance = Math::Clamp(distance, 1.1f, 5.0f);
+	SetDistance(distance);
+
+	// rotation
 	Quat cameraRotation = _camera->GetRotation();
 
 	Vec3 upDirection = glm::rotate(cameraRotation, glm::vec3(0.0f, 1.0f, 0.0f));

@@ -1,10 +1,17 @@
-struct UniformData 
-{
-	modelViewProjection: mat4x4<f32>,
+struct UniformData {
+	viewProjection: mat4x4<f32>,
+	stScale: vec2<f32>,
+	stTiling: vec2<f32>,
+	nmScale: vec2<f32>,
+	nmTiling: vec2<f32>,
+	stBlendSharpness: f32,
+	nmBlendSharpness: f32
 }
 
 @group(0) @binding(0) var<uniform> uniformData: UniformData;
-@group(0) @binding(1) var surfaceTexture: texture_2d<f32>;
+@group(0) @binding(1) var textureSampler: sampler;
+@group(0) @binding(2) var surfaceTexture: texture_2d<f32>;
+@group(0) @binding(3) var normalMap: texture_2d<f32>;
 
 struct VertexInput {
 	@location(0) position: vec3<f32>,
@@ -12,66 +19,94 @@ struct VertexInput {
 };
 
 struct VertexOutput {
-	@builtin(position) clip_position: vec4<f32>,
-	@location(0) object_position: vec3<f32>,
+	@builtin(position) clipPosition: vec4<f32>,
+	@location(0) objectPosition: vec3<f32>,
 	@location(1) normal: vec3<f32>,
 };
 
-fn calculate_lighting(
+fn scaleTileUV(
+	uv: vec2<f32>,
+	scale: vec2<f32>,
+	tiling: vec2<f32>
+) -> vec2<f32> {
+	return uv * scale + tiling;
+}
+
+fn calculateLighting(
     color: vec3<f32>, 
     normal: vec3<f32>
 ) -> vec3<f32> {
-    let ambient_strength: f32 = 0.2;
-    let ambient_color: vec3<f32> = color * ambient_strength;
+    let ambientStrength: f32 = 0.2;
+    let ambientColor: vec3<f32> = color * ambientStrength;
 
-    let light_dir: vec3<f32> = vec3<f32>(1.0, 1.0, 0.0);
-    let diffuse_strength: f32 = max(dot(normal, light_dir), 0.0);
-    let diffuse_color: vec3<f32> = color * diffuse_strength;
+    let lightDir: vec3<f32> = vec3<f32>(1.0, 1.0, 0.0);
+    let diffuseStrength: f32 = max(dot(normal, lightDir), 0.0);
+    let diffuseColor: vec3<f32> = color * diffuseStrength;
 
-    let lit_color: vec3<f32> = ambient_color + diffuse_color;
+    let litColor: vec3<f32> = ambientColor + diffuseColor;
 
-    return clamp(lit_color, vec3<f32>(0.0), vec3<f32>(1.0));
+    return clamp(litColor, vec3<f32>(0.0), vec3<f32>(1.0));
 }
 
-fn triplanar_map(
+fn triplanarMap(
 	position: vec3<f32>,
-	normal: vec3<f32>,
-	texture: texture_2d<f32>
+	surfaceNormal: vec3<f32>,
+	texture: texture_2d<f32>,
+	scale: vec2<f32>,
+	tiling: vec2<f32>,
+	blendSharpness: f32
 ) -> vec3<f32> {
 	let textureResolution: vec2<f32> = vec2<f32>(textureDimensions(texture));
-	let uv_front: vec2<f32> = position.zy * 0.5 + 0.5;
-	let uv_side: vec2<f32> = position.xz * 0.5 + 0.5;
-	let uv_top: vec2<f32> = position.xy * 0.5 + 0.5;
+	let uvX: vec2<f32> = position.zy * 0.5 + 0.5;
+	let uvY: vec2<f32> = position.xz * 0.5 + 0.5;
+	let uvZ: vec2<f32> = position.xy * 0.5 + 0.5;
 
-	var color_front: vec3<f32> = textureLoad(texture, vec2<i32>(uv_front * textureResolution), 0).rgb;
-	var color_side: vec3<f32> = textureLoad(texture, vec2<i32>(uv_side * textureResolution), 0).rgb;
-	var color_top: vec3<f32> = textureLoad(texture, vec2<i32>(uv_top * textureResolution), 0).rgb;
+	var colorX: vec3<f32> = textureSample(texture, textureSampler, scaleTileUV(uvX, scale, tiling)).rgb;
+	var colorY: vec3<f32> = textureSample(texture, textureSampler, scaleTileUV(uvY, scale, tiling)).rgb;
+	var colorZ: vec3<f32> = textureSample(texture, textureSampler, scaleTileUV(uvZ, scale, tiling)).rgb;
 
-	var weights: vec3<f32> = abs(normal);
+	var weights: vec3<f32> = abs(surfaceNormal);
+	weights = pow(weights, vec3<f32>(blendSharpness));
 	weights = weights / (weights.x + weights.y + weights.z);
 
-	color_front *= weights.x;
-	color_side *= weights.y;
-	color_top *= weights.z;
+	colorX *= weights.x;
+	colorY *= weights.y;
+	colorZ *= weights.z;
 
-	return color_front + color_side + color_top;
+	return colorX + colorY + colorZ;
+}
+
+fn triplanarNormal(
+	position: vec3<f32>,
+	surfaceNormal: vec3<f32>,
+	texture: texture_2d<f32>,
+	scaleTiling: vec4<f32>
+) -> vec3<f32> {
+	return vec3<f32>(0.0);
 }
 
 @vertex
-fn vs_main(in: VertexInput) -> VertexOutput {
+fn vsMain(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
 
-	out.clip_position = uniformData.modelViewProjection * vec4<f32>(in.position, 1.0);
-	out.object_position = in.position;
+	out.clipPosition = uniformData.viewProjection * vec4<f32>(in.position, 1.0);
+	out.objectPosition = in.position;
 	out.normal = in.normal;
 	return out;
 }
 
 @fragment
-fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	let color: vec3<f32> = triplanar_map(in.object_position, in.normal, surfaceTexture);
+fn fsMain(in: VertexOutput) -> @location(0) vec4<f32> {
+	let color: vec3<f32> = triplanarMap(
+		in.objectPosition, 
+		in.normal, 
+		surfaceTexture, 
+		uniformData.stScale,
+		uniformData.stTiling,
+		uniformData.stBlendSharpness
+	);
 
-	let lit_color: vec3<f32> = calculate_lighting(color, in.normal);
-	let gamma_corrected_color: vec3<f32> = pow(lit_color, vec3<f32>(2.2));
-	return vec4<f32>(gamma_corrected_color, 1.0);
+	let litColor: vec3<f32> = calculateLighting(color, in.normal);
+	let gammaCorrectedColor: vec3<f32> = pow(litColor, vec3<f32>(2.2));
+	return vec4<f32>(gammaCorrectedColor, 1.0);
 }

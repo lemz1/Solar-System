@@ -47,8 +47,9 @@ WGPUContext::WGPUContext(
 	requiredLimits.limits.maxTextureDimension1D = 2160;
 	requiredLimits.limits.maxTextureDimension2D = 3840;
 	requiredLimits.limits.maxTextureArrayLayers = 1;
-	requiredLimits.limits.maxSampledTexturesPerShaderStage = 1;
-
+	requiredLimits.limits.maxSampledTexturesPerShaderStage = 2;
+	requiredLimits.limits.maxSamplersPerShaderStage = 1;
+	
 	DeviceDescriptor deviceDesc;
 	deviceDesc.label = "Device";
 	deviceDesc.requiredFeaturesCount = 0;
