@@ -17,22 +17,12 @@ void PlanetCreator::OnCreate()
 	_planet = new Planet();
 
 	_camera = new Camera(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
-	_camera->SetPosition(Vec3(0, 0, -3));
 
 	_cameraController = new CameraController(_camera);}
 
 void PlanetCreator::OnUpdate(float deltaTime)
 {
 	Queue queue = Application::GetWGPUContext()->queue;
-
-	if (Input::PressedKey(Key::Enter))
-	{
-		_cameraController->SetActive(true);
-	}
-	else if (Input::PressedKey(Key::Escape))
-	{
-		_cameraController->SetActive(false);
-	}
 
 	_cameraController->OnUpdate(deltaTime);
 

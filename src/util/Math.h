@@ -15,4 +15,9 @@ class Math
 {
 public:
 	static float Sign(float value);
+	static float Lerp(
+		float a,
+		float b,
+		float t
+	);
 };

@@ -70,12 +70,12 @@ namespace IcoSphere
 		// and project the vertices onto the sphere
 		for (uint32_t i = 0; i < subdivisions; i++)
 		{
-			// https://en.wikipedia.org/wiki/Geodesic_polyhedron for freqency
-			uint32_t frequency = pow(4, i + 1);
+			// https://en.wikipedia.org/wiki/Geodesic_polyhedron for T
+			uint32_t T = pow(4, i + 1);
 			std::vector<Vec3> newVertices;
-			newVertices.reserve(10 * frequency + 2); // 10 * T + 2 (Vertices)
+			newVertices.reserve(10 * T + 2); // 10 * T + 2 (Vertices)
 			std::vector<uint32_t> newIndices;
-			newIndices.reserve(20 * frequency * 3); // 20 * T (Faces)
+			newIndices.reserve(20 * T * 3); // 20 * T (Faces)
 			std::unordered_map<Vec3, uint32_t, Vec3Hash, Vec3Equal> vertexMap;
 
 			for (uint32_t triangleIndex = 0; triangleIndex < icoSphereIndices.size(); triangleIndex += 3)

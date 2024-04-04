@@ -11,7 +11,7 @@ bool Input::PressedKey(Key key)
 bool Input::PressedMouseButton(MouseButton mouseButton)
 {
     GLFWwindow* window = Application::GetWindow()->GetHandle();
-    return glfwGetKey(window, (MouseCode)mouseButton) == GLFW_PRESS;
+    return glfwGetMouseButton(window, (MouseCode)mouseButton) == GLFW_PRESS;
 }
 
 Vec2 Input::GetMousePosition()

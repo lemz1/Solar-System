@@ -6,3 +6,12 @@ float Math::Sign(float value)
 		:  (value < 0) ? -1
 		:				  0;
 }
+
+float Math::Lerp(
+	float a, 
+	float b, 
+	float t
+)
+{
+    return a + t * (b - a);
+}

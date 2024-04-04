@@ -6,16 +6,7 @@
 CameraController::CameraController(Camera* camera)
 :	_camera(camera)
 {
-	GLFWwindow* window = Application::GetWindow()->GetHandle();
-
-	if (_isActive)
-	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
-	else
-	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
+	_camera->SetPosition(Vec3(0.0f, 0.0f, -3.0f));
 }
 
 void CameraController::OnUpdate(float deltaTime)
@@ -33,67 +24,39 @@ void CameraController::OnUpdate(float deltaTime)
 		deltaMousePos = Vec2(0.0f);
 	}
 
-	if (!_isActive)
-	{
-		return;
-	}
-
-	Vec3 cameraPosition = _camera->GetPosition();
 	Quat cameraRotation = _camera->GetRotation();
 
-	Vec3 rightDirection = glm::rotate(cameraRotation, glm::vec3(1.f, 0.f, 0.f));
-	Vec3 upDirection = glm::rotate(cameraRotation, glm::vec3(0.f, 1.f, 0.f));
-	Vec3 forwardDirection = glm::rotate(cameraRotation, glm::vec3(0.f, 0.f, 1.f));
+	Vec3 upDirection = glm::rotate(cameraRotation, glm::vec3(0.0f, 1.0f, 0.0f));
 
-	if (Input::PressedKey(Key::D))
+	constexpr float sensitivity = 0.001f;
+	if (!Input::PressedMouseButton(MouseButton::ButtonLeft))
 	{
-		cameraPosition += rightDirection * 5.0f * deltaTime;
-	}
-	else if (Input::PressedKey(Key::A))
+		_drag.x = Math::Lerp(0.0f, _drag.x, powf(0.5f, deltaTime * 20.0f));
+		_drag.y = Math::Lerp(0.0f, _drag.y, powf(0.5f, deltaTime * 20.0f));
+	} 
+	else 
 	{
-		cameraPosition -= rightDirection * 5.0f * deltaTime;
-	}
+		// stopping a bit faster when holding left click
+		_drag.x = Math::Lerp(0.0f, _drag.x, powf(0.5f, deltaTime * 30.0f));
+		_drag.y = Math::Lerp(0.0f, _drag.y, powf(0.5f, deltaTime * 30.0f));
 
-	if (Input::PressedKey(Key::E))
-	{
-		cameraPosition += upDirection * 5.0f * deltaTime;
-	}
-	else if (Input::PressedKey(Key::Q))
-	{
-		cameraPosition -= upDirection * 5.0f * deltaTime;
+		_drag += deltaMousePos * sensitivity;
 	}
 
-	if (Input::PressedKey(Key::W))
-	{
-		cameraPosition += forwardDirection * 5.0f * deltaTime;
-	}
-	else if (Input::PressedKey(Key::S))
-	{
-		cameraPosition -= forwardDirection * 5.0f * deltaTime;
-	}
-
-	_pitch += deltaMousePos.y * 0.001f;
+	_pitch += _drag.y;
 	// Sign is used to make it so that when we are upside down
 	// the horizontal movement isnt inverted
-	_yaw += Math::Sign(upDirection.y) * deltaMousePos.x * 0.001f;
+	_yaw += Math::Sign(upDirection.y) * _drag.x;
 
-	cameraRotation = glm::quat(glm::vec3(_pitch, _yaw, 0.f));
+	cameraRotation = glm::quat(glm::vec3(_pitch, _yaw, 0.0f));
 
-	_camera->SetPosition(cameraPosition);
 	_camera->SetRotation(cameraRotation);
+	RotateCameraAroundOrigin();
 }
 
-void CameraController::SetActive(bool isActive)
+void CameraController::RotateCameraAroundOrigin()
 {
-	GLFWwindow* window = Application::GetWindow()->GetHandle();
+	Vec3 backwardDirection = glm::rotate(_camera->GetRotation(), glm::vec3(0.0f, 0.0f, -1.0f));
 
-	_isActive = isActive;
-	if (_isActive)
-	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
-	else
-	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
+	_camera->SetPosition(backwardDirection * _distance);
 }

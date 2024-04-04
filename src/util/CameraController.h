@@ -9,16 +9,18 @@ public:
 
 	void OnUpdate(float deltaTime);
 
-	void SetActive(bool isActive);
-	bool IsActive() const { return _isActive; }
-
 	const Camera* GetCamera() const { return _camera; }
+
+	void SetDistance(float distance) { _distance = distance; RotateCameraAroundOrigin(); }
+	float GetDistance() const { return _distance; }
+private:
+	void RotateCameraAroundOrigin();
 private:
 	Camera* _camera;
 
-	bool _isActive = true;
-
+	Vec2 _drag{ 0.0f };
 	Vec2 _lastMousePos{ 0.0f };
 	float _pitch = 0;
 	float _yaw = 0;
+	float _distance = 3.0f;
 };
