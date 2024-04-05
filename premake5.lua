@@ -1,25 +1,25 @@
 workspace "Solar-System"
     architecture "x64"
     startproject "Solar-System"
-    configurations { "Debug", "Release" }
+    configurations { "debug", "release" }
 
     targetdir("%{wks.location}/export/%{cfg.system}/%{cfg.buildcfg}/libs/%{prj.name}")
     objdir("%{wks.location}/export/%{cfg.system}/%{cfg.buildcfg}/objs/%{prj.name}")
 
-    defines 
-    { 
+    defines
+    {
         "GLM_ENABLE_EXPERIMENTAL",
         "GLM_FORCE_DEPTH_ZERO_TO_ONE",
         "GLM_FORCE_LEFT_HANDED"
     }
 
-    filter "configurations:Debug"
+    filter "configurations:debug"
         defines { "DEBUG" }
         runtime "Debug"
         optimize "Off"
         symbols "On"
 
-    filter "configurations:Release"
+    filter "configurations:release"
         defines { "RELEASE" }
         runtime "Release"
         optimize "Full"
@@ -56,12 +56,14 @@ project "Solar-System"
         "%{wks.location}/vendor/webgpu/include",
         "%{wks.location}/vendor/glfw3webgpu",
         "%{wks.location}/vendor/stb_image",
+        "%{wks.location}/vendor/imgui"
     }
 
     links
     {
         "GLFW",
         "GLFW3WebGPU",
+        "ImGui"
     }
 
     filter "system:windows"
@@ -70,7 +72,6 @@ project "Solar-System"
     filter "system:linux"
         libdirs { "%{wks.location}/vendor/webgpu/bin/linux-x86_64" }
         links { "wgpu_native" }
-
 
     postbuildcommands
     {
@@ -85,8 +86,6 @@ project "Solar-System"
             "{COPY} \"%{wks.location}/vendor/webgpu/bin/windows-%{cfg.architecture}/wgpu_native.dll\" \"%{cfg.targetdir}\"",
         }
 
-        
-
     filter "system:linux"
         local current_directory = os.getcwd()
         local absWksPath = current_directory:match("(.+)%/[^%/]+$")
@@ -98,5 +97,3 @@ project "Solar-System"
         }
 
     filter {}
-
-

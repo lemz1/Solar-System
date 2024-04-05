@@ -6,35 +6,35 @@
     "configurations": [
         {
             "name": "Run Windows Debug",
-            "program": "${workspaceFolder}/export/Windows/Debug/Solar-System.exe",
+            "program": "${workspaceFolder}/export/windows/debug/bin/Solar-System.exe",
             "preLaunchTask": "Build Windows Debug",
             "type": "cppvsdbg",
             "request": "launch",
-            "cwd": "${workspaceFolder}/export/Windows/Debug"
+            "cwd": "${workspaceFolder}/export/windows/debug/bin"
         },
         {
             "name": "Run Windows Release",
-            "program": "${workspaceFolder}/export/Windows/Release/Solar-System.exe",
+            "program": "${workspaceFolder}/export/windows/release/bin/Solar-System.exe",
             "preLaunchTask": "Build Windows Release",
             "type": "cppvsdbg",
             "request": "launch",
-            "cwd": "${workspaceFolder}/export/Windows/Release"
+            "cwd": "${workspaceFolder}/export/windows/release/bin"
         },
         {
             "name": "Run Linux Debug",
-            "program": "${workspaceFolder}/export/Linux/Debug/Solar-System.exe",
+            "program": "${workspaceFolder}/export/linux/debug/bin/Solar-System",
             "preLaunchTask": "Build Linux Debug",
             "type": "cppdbg",
             "request": "launch",
-            "cwd": "${workspaceFolder}/export/Linux/Debug"
+            "cwd": "${workspaceFolder}/export/linux/debug/bin"
         },
         {
             "name": "Run Linux Release",
-            "program": "${workspaceFolder}/export/Linux/Release/Solar-System.exe",
+            "program": "${workspaceFolder}/export/linux/release/bin/Solar-System",
             "preLaunchTask": "Build Linux Release",
             "type": "cppdbg",
             "request": "launch",
-            "cwd": "${workspaceFolder}/export/Linux/Release"
+            "cwd": "${workspaceFolder}/export/linux/release/bin"
         }
     ]
 }

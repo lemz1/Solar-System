@@ -6,7 +6,8 @@ project "ImGui"
 	includedirs 
 	{
 		"imgui",
-        "%{wks.location}/vendor/glfw/glfw/include"
+        "%{wks.location}/vendor/glfw/glfw/include",
+        "%{wks.location}/vendor/webgpu/include"
 	}
 
 	files
@@ -37,11 +38,11 @@ project "ImGui"
 		systemversion "latest"
 		cppdialect "C++17"
 
-	filter "configurations:Debug"
+	filter "configurations:debug"
 		runtime "Debug"
 		symbols "on"
 
-	filter "configurations:Release"
+	filter "configurations:release"
 		runtime "Release"
 		optimize "on"
 
