@@ -4,13 +4,13 @@
 #include "wgpu/DepthTexture.h"
 #include "util/Camera.h"
 #include "util/CameraController.h"
-#include "celestial-bodies/Planet.h"
-#include "celestial-bodies/PlanetPipeline.h"
+#include "celestial-bodies/Moon.h"
+#include "celestial-bodies/MoonPipeline.h"
 
-class PlanetCreator : public State
+class MoonCreator : public State
 {
 public:
-	~PlanetCreator() override = default;
+	~MoonCreator() override = default;
 	
 	void OnCreate() override;
 	void OnUpdate(float deltaTime) override;
@@ -18,8 +18,8 @@ public:
 	void OnDestroy() override;
 private:
 	DepthTexture* _depthTexture = nullptr;
-	PlanetPipeline* _pipeline = nullptr;
-	Planet* _planet = nullptr;
+	MoonPipeline* _pipeline = nullptr;
+	Moon* _moon = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;
 };

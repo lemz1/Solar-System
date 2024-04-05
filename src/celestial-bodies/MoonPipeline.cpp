@@ -1,4 +1,4 @@
-#include "PlanetPipeline.h"
+#include "MoonPipeline.h"
 
 #include "core/Application.h"
 #include "util/AssetManager.h"
@@ -6,7 +6,7 @@
 
 using namespace wgpu;
 
-PlanetPipeline::PlanetPipeline(
+MoonPipeline::MoonPipeline(
 	const char* shaderPath,
 	const char* vertexEntryPoint,
 	const char* fragmentEntryPoint
@@ -14,7 +14,6 @@ PlanetPipeline::PlanetPipeline(
 :	shaderModule(nullptr),
 	bindGroupLayout(nullptr),
 	sampler(nullptr),
-	surfaceTexture(nullptr),
 	normalMap(nullptr),
 	uniformBuffer(nullptr),
 	bindGroup(nullptr),
@@ -117,14 +116,14 @@ PlanetPipeline::PlanetPipeline(
 	pipelineDesc.multisample.alphaToCoverageEnabled = false;
 
 	// Bind Groups (Uniforms)
-	Vector<BindGroupLayoutEntry> bindingLayoutEntries(4, Default);
+	Vector<BindGroupLayoutEntry> bindingLayoutEntries(3, Default);
 
 	{
 		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
 		bindingLayout.binding = 0;
 		bindingLayout.visibility = ShaderStage::Vertex | ShaderStage::Fragment;
 		bindingLayout.buffer.type = BufferBindingType::Uniform;
-		bindingLayout.buffer.minBindingSize = sizeof(PlanetUniform);
+		bindingLayout.buffer.minBindingSize = sizeof(MoonUniform);
 	}
 
 	{
@@ -142,34 +141,24 @@ PlanetPipeline::PlanetPipeline(
 		bindingLayout.texture.viewDimension = TextureViewDimension::_2D;
 	}
 
-	{
-		BindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[3];
-		bindingLayout.binding = 3;
-		bindingLayout.visibility = ShaderStage::Fragment;
-		bindingLayout.texture.sampleType = TextureSampleType::Float;
-		bindingLayout.texture.viewDimension = TextureViewDimension::_2D;
-	}
-
 	BindGroupLayoutDescriptor bindGroupLayoutDesc{};
 	bindGroupLayoutDesc.entryCount = bindingLayoutEntries.size();
 	bindGroupLayoutDesc.entries = bindingLayoutEntries.data();
 	bindGroupLayout = device.createBindGroupLayout(bindGroupLayoutDesc);
 
 	BufferDescriptor bufferDesc{};
-	bufferDesc.size = sizeof(PlanetUniform);
+	bufferDesc.size = sizeof(MoonUniform);
 	bufferDesc.usage = BufferUsage::CopyDst | BufferUsage::Uniform;
 	bufferDesc.mappedAtCreation = false;
 	uniformBuffer = device.createBuffer(bufferDesc);
 
-	PlanetUniform uniform = {};
-	uniform.stBlendSharpness = 1.0f;
-	uniform.stScale = Vec2(1.0f);
-	uniform.stTiling = Vec2(1.0f);
-	uniform.nmBlendSharpness = 1.0f;
-	uniform.nmScale = Vec2(1.0f);
-	uniform.nmTiling = Vec2(1.0f);
+	MoonUniform uniform = {};
+	uniform.normalMapScale = Vec2(0.5f);
+	uniform.normalMapTiling = Vec2(1.0f);
+	uniform.normalMapBlendSharpness = 16.0f;
+	uniform.moonColor = Vec3(0.3f);
 
-	queue.writeBuffer(uniformBuffer, 0, &uniform, sizeof(PlanetUniform));
+	queue.writeBuffer(uniformBuffer, 0, &uniform, sizeof(MoonUniform));
 	
 	SamplerDescriptor samplerDesc;
 	samplerDesc.addressModeU = AddressMode::Repeat;
@@ -184,17 +173,16 @@ PlanetPipeline::PlanetPipeline(
 	samplerDesc.maxAnisotropy = 1;
 	sampler = device.createSampler(samplerDesc);
 
-	surfaceTexture = AssetManager::LoadTexture2D("assets/images/Wall_Tiles_Stone_001_basecolor.jpg", TextureFormat::RGBA8Unorm);
-	normalMap = AssetManager::LoadTexture2D("assets/images/Wall_Tiles_Stone_001_basecolor.jpg", TextureFormat::RGBA8Unorm);
+	normalMap = AssetManager::LoadTexture2D("assets/images/normalMap.png", TextureFormat::RGBA8Unorm);
 
-	Vector<BindGroupEntry> bindings(4, Default);
+	Vector<BindGroupEntry> bindings(3, Default);
 
 	{
 		BindGroupEntry& binding = bindings[0];
 		binding.binding = 0;
 		binding.offset = 0;
 		binding.buffer = uniformBuffer;
-		binding.size = sizeof(PlanetUniform);
+		binding.size = sizeof(MoonUniform);
 	}
 
 	{
@@ -206,12 +194,6 @@ PlanetPipeline::PlanetPipeline(
 	{
 		BindGroupEntry& binding = bindings[2];
 		binding.binding = 2;
-		binding.textureView = surfaceTexture->GetTextureView();
-	}
-
-	{
-		BindGroupEntry& binding = bindings[3];
-		binding.binding = 3;
 		binding.textureView = normalMap->GetTextureView();
 	}
 
@@ -230,14 +212,13 @@ PlanetPipeline::PlanetPipeline(
 	pipeline = device.createRenderPipeline(pipelineDesc);
 }
 
-PlanetPipeline::~PlanetPipeline()
+MoonPipeline::~MoonPipeline()
 {
 	pipeline.release();
 	layout.release();
 	bindGroup.release();
 	uniformBuffer.destroy();
 	delete normalMap;
-	delete surfaceTexture;
 	sampler.release();
 	uniformBuffer.release();
 	bindGroupLayout.release();

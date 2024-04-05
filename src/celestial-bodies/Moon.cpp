@@ -1,4 +1,4 @@
-#include "Planet.h"
+#include "Moon.h"
 
 #include "util/AssetManager.h"
 #include "celestial-bodies/IcoSphere.h"
@@ -7,7 +7,7 @@ using namespace wgpu;
 
 static IcoSphere::MeshData IcoSphereData;
 
-Planet::Planet()
+Moon::Moon()
 {
 	if (IcoSphereData.vertices.size() == 0)
 	{
@@ -17,12 +17,12 @@ Planet::Planet()
 	Generate();
 }
 
-Planet::~Planet()
+Moon::~Moon()
 {
 	delete _mesh;
 }
 
-void Planet::Generate()
+void Moon::Generate()
 {
 	if (_mesh)
 	{

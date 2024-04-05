@@ -1,17 +1,14 @@
 struct UniformData {
 	viewProjection: mat4x4<f32>,
-	stScale: vec2<f32>,
-	stTiling: vec2<f32>,
-	nmScale: vec2<f32>,
-	nmTiling: vec2<f32>,
-	stBlendSharpness: f32,
-	nmBlendSharpness: f32
+	moonColor: vec3<f32>,
+	normalMapScale: vec2<f32>,
+	normalMapTiling: vec2<f32>,
+	normalMapBlendSharpness: f32
 }
 
 @group(0) @binding(0) var<uniform> uniformData: UniformData;
 @group(0) @binding(1) var textureSampler: sampler;
-@group(0) @binding(2) var surfaceTexture: texture_2d<f32>;
-@group(0) @binding(3) var normalMap: texture_2d<f32>;
+@group(0) @binding(2) var normalMap: texture_2d<f32>;
 
 struct VertexInput {
 	@location(0) position: vec3<f32>,
@@ -32,6 +29,10 @@ fn scaleTileUV(
 	return uv * scale + tiling;
 }
 
+fn unpackNormal(normal: vec3<f32>) -> vec3<f32> {
+	return normal * 2.0 - 1.0;
+}
+
 fn calculateLighting(
     color: vec3<f32>, 
     normal: vec3<f32>
@@ -48,6 +49,7 @@ fn calculateLighting(
     return clamp(litColor, vec3<f32>(0.0), vec3<f32>(1.0));
 }
 
+// https://www.ronja-tutorials.com/post/010-triplanar-mapping
 fn triplanarMap(
 	position: vec3<f32>,
 	surfaceNormal: vec3<f32>,
@@ -56,7 +58,6 @@ fn triplanarMap(
 	tiling: vec2<f32>,
 	blendSharpness: f32
 ) -> vec3<f32> {
-	let textureResolution: vec2<f32> = vec2<f32>(textureDimensions(texture));
 	let uvX: vec2<f32> = position.zy * 0.5 + 0.5;
 	let uvY: vec2<f32> = position.xz * 0.5 + 0.5;
 	let uvZ: vec2<f32> = position.xy * 0.5 + 0.5;
@@ -65,24 +66,56 @@ fn triplanarMap(
 	var colorY: vec3<f32> = textureSample(texture, textureSampler, scaleTileUV(uvY, scale, tiling)).rgb;
 	var colorZ: vec3<f32> = textureSample(texture, textureSampler, scaleTileUV(uvZ, scale, tiling)).rgb;
 
-	var weights: vec3<f32> = abs(surfaceNormal);
-	weights = pow(weights, vec3<f32>(blendSharpness));
-	weights = weights / (weights.x + weights.y + weights.z);
+	var blend: vec3<f32> = abs(surfaceNormal);
+	blend = pow(blend, vec3<f32>(blendSharpness));
+	blend = blend / (blend.x + blend.y + blend.z);
 
-	colorX *= weights.x;
-	colorY *= weights.y;
-	colorZ *= weights.z;
+	colorX *= blend.x;
+	colorY *= blend.y;
+	colorZ *= blend.z;
 
 	return colorX + colorY + colorZ;
 }
 
+// https://bgolus.medium.com/normal-mapping-for-a-triplanar-shader-10bf39dca05a
 fn triplanarNormal(
 	position: vec3<f32>,
 	surfaceNormal: vec3<f32>,
 	texture: texture_2d<f32>,
-	scaleTiling: vec4<f32>
+	scale: vec2<f32>,
+	tiling: vec2<f32>,
+	blendSharpness: f32
 ) -> vec3<f32> {
-	return vec3<f32>(0.0);
+	let uvX: vec2<f32> = position.zy * 0.5 + 0.5;
+	let uvY: vec2<f32> = position.xz * 0.5 + 0.5;
+	let uvZ: vec2<f32> = position.xy * 0.5 + 0.5;
+
+	var tNormalX: vec3<f32> = unpackNormal(textureSample(texture, textureSampler, scaleTileUV(uvX, scale, tiling)).rgb);
+	var tNormalY: vec3<f32> = unpackNormal(textureSample(texture, textureSampler, scaleTileUV(uvY, scale, tiling)).rgb);
+	var tNormalZ: vec3<f32> = unpackNormal(textureSample(texture, textureSampler, scaleTileUV(uvZ, scale, tiling)).rgb);
+
+	var blend: vec3<f32> = abs(surfaceNormal);
+	blend = pow(blend, vec3<f32>(blendSharpness));
+	blend = blend / (blend.x + blend.y + blend.z);
+
+	tNormalX = vec3<f32>(
+		tNormalX.xy + surfaceNormal.zy,
+		abs(tNormalX.z) * surfaceNormal.x
+	);
+	tNormalY = vec3<f32>(
+		tNormalY.xy + surfaceNormal.xz,
+		abs(tNormalY.z) * surfaceNormal.y
+	);
+	tNormalZ = vec3<f32>(
+		tNormalZ.xy + surfaceNormal.xy,
+		abs(tNormalZ.z) * surfaceNormal.z
+	);
+
+	return normalize(
+		tNormalX.zyx * blend.x +
+		tNormalY.xzy * blend.y +
+		tNormalZ.xyz * blend.z
+	);
 }
 
 @vertex
@@ -97,16 +130,16 @@ fn vsMain(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fsMain(in: VertexOutput) -> @location(0) vec4<f32> {
-	let color: vec3<f32> = triplanarMap(
+	let normal: vec3<f32> = triplanarNormal(
 		in.objectPosition, 
 		in.normal, 
-		surfaceTexture, 
-		uniformData.stScale,
-		uniformData.stTiling,
-		uniformData.stBlendSharpness
+		normalMap, 
+		uniformData.normalMapScale,
+		uniformData.normalMapTiling,
+		uniformData.normalMapBlendSharpness
 	);
 
-	let litColor: vec3<f32> = calculateLighting(color, in.normal);
+	let litColor: vec3<f32> = calculateLighting(uniformData.moonColor, normal);
 	let gammaCorrectedColor: vec3<f32> = pow(litColor, vec3<f32>(2.2));
 	return vec4<f32>(gammaCorrectedColor, 1.0);
 }

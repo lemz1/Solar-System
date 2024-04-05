@@ -4,11 +4,11 @@
 #include "wgpu/Mesh.h"
 #include "util/FractalNoiseSettings.h"
 
-class Planet
+class Moon
 {
 public:
-	Planet();
-	~Planet();
+	Moon();
+	~Moon();
 
 	void Generate();
 

@@ -1,4 +1,4 @@
-#include "PlanetCreator.h"
+#include "MoonCreator.h"
 
 #include "core/Application.h"
 #include "util/AssetManager.h"
@@ -6,39 +6,32 @@
 
 using namespace wgpu;
 
-void PlanetCreator::OnCreate()
+void MoonCreator::OnCreate()
 {
 	Device device = Application::GetWGPUContext()->device;
 
 	_depthTexture = new DepthTexture(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 
-	_pipeline = new PlanetPipeline("assets/shaders/shader.wgsl", "vsMain", "fsMain");
+	_pipeline = new MoonPipeline("assets/shaders/moon.wgsl", "vsMain", "fsMain");
 
-	_planet = new Planet();
+	_moon = new Moon();
 
 	_camera = new Camera(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 
 	_cameraController = new CameraController(_camera);}
 
-void PlanetCreator::OnUpdate(float deltaTime)
+void MoonCreator::OnUpdate(float deltaTime)
 {
 	Queue queue = Application::GetWGPUContext()->queue;
 
 	_cameraController->OnUpdate(deltaTime);
 
-	PlanetUniform uniform = {};
-	uniform.viewProjection = _camera->GetProjection() * _camera->GetInverseView();
-	uniform.stScale = Vec2(1.0f);
-	uniform.stTiling = Vec2(1.0f);
-	uniform.nmScale = Vec2(1.0f);
-	uniform.nmTiling = Vec2(1.0f);
-	uniform.stBlendSharpness = 1.0f;
-	uniform.nmBlendSharpness = 1.0f;
+	Mat4 viewProjection = _camera->GetProjection() * _camera->GetInverseView();
 
-	queue.writeBuffer(_pipeline->uniformBuffer, 0, &uniform, sizeof(PlanetUniform));
+	queue.writeBuffer(_pipeline->uniformBuffer, offsetof(MoonUniform, viewProjection), &viewProjection, sizeof(Mat4));
 }
 
-void PlanetCreator::OnDraw()
+void MoonCreator::OnDraw()
 {
 	Instance instance = Application::GetWGPUContext()->instance;
 	Surface surface = Application::GetWGPUContext()->surface;
@@ -92,7 +85,7 @@ void PlanetCreator::OnDraw()
 	renderPass.setPipeline(_pipeline->pipeline);
 	renderPass.setBindGroup(0, _pipeline->bindGroup, 0, nullptr);
 
-	_planet->GetMesh()->Draw(renderPass);
+	_moon->GetMesh()->Draw(renderPass);
 
 	renderPass.end();
 	renderPass.release();
@@ -109,11 +102,11 @@ void PlanetCreator::OnDraw()
 	swapChain.present();
 }
 
-void PlanetCreator::OnDestroy()
+void MoonCreator::OnDestroy()
 {
 	delete _cameraController;
 	delete _camera;
-	delete _planet;
+	delete _moon;
 	delete _pipeline;
 	delete _depthTexture;
 }

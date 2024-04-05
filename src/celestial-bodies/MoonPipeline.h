@@ -4,33 +4,30 @@
 #include "wgpu/Texture2D.h"
 #include <webgpu/webgpu.hpp>
 
-struct PlanetUniform
+struct MoonUniform
 {
 	Mat4 viewProjection;
-	Vec2 stScale;
-	Vec2 stTiling;
-	Vec2 nmScale;
-	Vec2 nmTiling;
-	float stBlendSharpness;
-	float nmBlendSharpness;
-	char _padding[8]; // 8 byte padding 
+	Vec3 moonColor;
+	Vec2 normalMapScale;
+	Vec2 normalMapTiling;
+	float normalMapBlendSharpness;
+	char _padding[16]; // 16 byte padding (makes the errors go away)
 };
 
-class PlanetPipeline
+class MoonPipeline
 {
 public:
 	// shaderModule destruction is handled by this instance
-	PlanetPipeline(
+	MoonPipeline(
 		const char* shaderPath,
 		const char* vertexEntryPoint,
 		const char* fragmentEntryPoint
 	);
-	~PlanetPipeline();
+	~MoonPipeline();
 public:
 	wgpu::ShaderModule shaderModule;
 	wgpu::BindGroupLayout bindGroupLayout;
 	wgpu::Sampler sampler;
-	Texture2D* surfaceTexture;
 	Texture2D* normalMap;
 	wgpu::Buffer uniformBuffer;
 	wgpu::BindGroup bindGroup;
