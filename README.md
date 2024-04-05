@@ -9,7 +9,7 @@
 ### Windows
 
 To build on windows you can run the setup-vs.bat to generate the visual studio solution file.
-Or you could use the build.bat files which requires you to specify the path to MSBuild.exe.
+Or you could use the build.bat files which requires you to specify the path to MSBuild.exe in each of the build.bat files.
 
 ### Linux
 
