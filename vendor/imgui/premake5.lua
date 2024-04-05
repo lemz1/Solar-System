@@ -24,8 +24,8 @@ project "ImGui"
 		"imgui/imgui_demo.cpp",
 		"imgui/backends/imgui_impl_glfw.h",
 		"imgui/backends/imgui_impl_glfw.cpp",
-		"imgui/backends/imgui_impl_opengl3.h",
-		"imgui/backends/imgui_impl_opengl3.cpp"
+		"imgui/backends/imgui_impl_wgpu.h",
+		"imgui/backends/imgui_impl_wgpu.cpp"
 	}
 
 	filter "system:windows"
