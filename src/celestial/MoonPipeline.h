@@ -17,7 +17,6 @@ struct MoonUniform
 class MoonPipeline
 {
 public:
-	// shaderModule destruction is handled by this instance
 	MoonPipeline(
 		const char* shaderPath,
 		const char* vertexEntryPoint,
