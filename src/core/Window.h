@@ -14,15 +14,18 @@ public:
 	~Window();
 
 	GLFWwindow* GetHandle() { return _handle; }
-	uint32_t GetWidth() const { return _width; }
-	uint32_t GetHeight() const { return _height; }
-	const char* GetTitle() const { return _title; }
+	uint32_t GetWidth() const { return _data.width; }
+	uint32_t GetHeight() const { return _data.height; }
+	const char* GetTitle() const { return _data.title; }
 private:
 	GLFWwindow* _handle;
 
-	uint32_t _width;
-	uint32_t _height;
-	const char* _title;
+	struct WindowData 
+	{
+		uint32_t width;
+		uint32_t height;
+		const char* title;
+	};
 
-	friend class Application;
+	WindowData _data;
 };

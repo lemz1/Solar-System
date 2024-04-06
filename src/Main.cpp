@@ -1,5 +1,5 @@
 #include "core/Application.h"
-#include "states/MoonCreator.h"
+#include "state/MoonCreator.h"
 
 int main()
 {

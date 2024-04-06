@@ -36,19 +36,19 @@ void CameraController::OnUpdate(float deltaTime)
 	Vec3 upDirection = glm::rotate(cameraRotation, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	constexpr float sensitivity = 0.001f;
-	if (!Input::PressedMouseButton(MouseButton::ButtonLeft))
+	if (Input::PressedMouseButton(MouseButton::ButtonLeft) && Input::PressedKey(Key::LeftShift))
 	{
-		_drag.x = Math::Lerp(0.0f, _drag.x, powf(0.5f, deltaTime * 20.0f));
-		_drag.y = Math::Lerp(0.0f, _drag.y, powf(0.5f, deltaTime * 20.0f));
-	} 
-	else 
-	{
-		// stopping a bit faster when holding left click
+		// stopping a bit faster
 		_drag.x = Math::Lerp(0.0f, _drag.x, powf(0.5f, deltaTime * 30.0f));
 		_drag.y = Math::Lerp(0.0f, _drag.y, powf(0.5f, deltaTime * 30.0f));
 
 		_drag += deltaMousePos * sensitivity;
 	}
+	else 
+	{
+		_drag.x = Math::Lerp(0.0f, _drag.x, powf(0.5f, deltaTime * 20.0f));
+		_drag.y = Math::Lerp(0.0f, _drag.y, powf(0.5f, deltaTime * 20.0f));
+	} 
 
 	_pitch += _drag.y;
 	// Sign is used to make it so that when we are upside down

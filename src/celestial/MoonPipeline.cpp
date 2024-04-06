@@ -142,7 +142,7 @@ MoonPipeline::MoonPipeline(
 	}
 
 	BindGroupLayoutDescriptor bindGroupLayoutDesc{};
-	bindGroupLayoutDesc.entryCount = bindingLayoutEntries.size();
+	bindGroupLayoutDesc.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDesc.entries = bindingLayoutEntries.data();
 	bindGroupLayout = device.createBindGroupLayout(bindGroupLayoutDesc);
 
@@ -199,7 +199,7 @@ MoonPipeline::MoonPipeline(
 
 	BindGroupDescriptor bindGroupDesc{};
 	bindGroupDesc.layout = bindGroupLayout;
-	bindGroupDesc.entryCount = bindings.size();
+	bindGroupDesc.entryCount = (uint32_t)bindings.size();
 	bindGroupDesc.entries = bindings.data();
 	bindGroup = device.createBindGroup(bindGroupDesc);
 

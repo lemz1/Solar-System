@@ -4,6 +4,8 @@
 #include "util/AssetManager.h"
 #include "core/Input.h"
 
+#include <functional>
+
 using namespace wgpu;
 
 void MoonCreator::OnCreate()
@@ -18,7 +20,13 @@ void MoonCreator::OnCreate()
 
 	_camera = new Camera(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
 
-	_cameraController = new CameraController(_camera);}
+	_cameraController = new CameraController(_camera);
+}
+
+void MoonCreator::OnEvent(const Event& event)
+{
+	Event::Dispatch<WindowResizeEvent>(event, BindEventFunction(MoonCreator::OnResize));
+}
 
 void MoonCreator::OnUpdate(float deltaTime)
 {
@@ -109,4 +117,12 @@ void MoonCreator::OnDestroy()
 	delete _moon;
 	delete _pipeline;
 	delete _depthTexture;
+}
+
+void MoonCreator::OnResize(const WindowResizeEvent &event)
+{
+	_camera->Resize(event.GetWidth(), event.GetHeight());
+
+	delete _depthTexture;
+	_depthTexture = new DepthTexture(event.GetWidth(), event.GetHeight());
 }

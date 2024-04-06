@@ -71,7 +71,7 @@ namespace IcoSphere
 		for (uint32_t i = 0; i < subdivisions; i++)
 		{
 			// https://en.wikipedia.org/wiki/Geodesic_polyhedron for T
-			uint32_t T = pow(4, i + 1);
+			uint32_t T = (uint32_t)pow(4, i + 1);
 			Vector<Vec3> newVertices;
 			newVertices.reserve(10 * T + 2); // 10 * T + 2 (Vertices)
 			Vector<uint32_t> newIndices;

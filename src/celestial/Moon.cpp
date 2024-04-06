@@ -1,7 +1,7 @@
 #include "Moon.h"
 
 #include "util/AssetManager.h"
-#include "celestial-bodies/IcoSphere.h"
+#include "celestial/IcoSphere.h"
 
 using namespace wgpu;
 

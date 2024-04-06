@@ -82,5 +82,5 @@ void Mesh::Draw(RenderPassEncoder renderPass) const
     renderPass.setVertexBuffer(1, _normalBuffer, 0, _normals.size() * sizeof(Vec3));
     renderPass.setIndexBuffer(_indexBuffer, IndexFormat::Uint32, 0, _indices.size() * sizeof(uint32_t));
 
-    renderPass.drawIndexed(_indices.size(), 1, 0, 0, 0);
+    renderPass.drawIndexed((uint32_t)_indices.size(), 1, 0, 0, 0);
 }

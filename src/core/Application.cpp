@@ -16,12 +16,11 @@ Application::Application(
 		return;
 	}
 
-
 	_Instance = this;
 
 	_window = new Window(width, height, title);
 
-	_wgpuContext = new WGPUContext(_window->_handle, _window->_width, _window->_height);
+	_wgpuContext = new WGPUContext(_window->GetHandle(), _window->GetWidth(), _window->GetHeight());
 
 	_state = initialState;
 	_state->OnCreate();
@@ -40,9 +39,9 @@ void Application::Run()
 {
 	_time = 0;
 
-	while (!glfwWindowShouldClose(_window->_handle))
+	while (!glfwWindowShouldClose(_window->GetHandle()))
 	{
-		float newTime = glfwGetTime();
+		float newTime = (float)glfwGetTime();
 		float deltaTime = newTime - _time;
 		_time = newTime;
 
