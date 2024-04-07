@@ -11,12 +11,19 @@ public:
 	);
 	~DepthTexture();
 
+	void Resize(
+		uint32_t width,
+		uint32_t height
+	);
+
 	uint32_t GetWidth() const { return _width; }
 	uint32_t GetHeight() const { return _height; }
 	wgpu::Texture GetTexture() const { return _texture; }
 	wgpu::TextureView GetTextureView() const { return _textureView; }
 
 	static wgpu::TextureFormat GetTextureFormat() { return DepthTexture::_Format; }
+private:
+	void CreateTexture();
 private:
 	static wgpu::TextureFormat _Format;
 

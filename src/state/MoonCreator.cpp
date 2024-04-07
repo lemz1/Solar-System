@@ -3,18 +3,17 @@
 #include "core/Application.h"
 #include "util/AssetManager.h"
 #include "core/Input.h"
+#include "celestial/MoonComputePipeline.h"
+#include "debug/Timer.h"
 
 #include <functional>
 
-using namespace wgpu;
-
 void MoonCreator::OnCreate()
 {
-	Device device = Application::GetWGPUContext()->device;
+	wgpu::Device device = Application::GetWGPUContext()->device;
+	wgpu::Queue queue = Application::GetWGPUContext()->queue;
 
 	_depthTexture = new DepthTexture(Application::GetWindow()->GetWidth(), Application::GetWindow()->GetHeight());
-
-	_pipeline = new MoonPipeline("assets/shaders/moon.wgsl", "vsMain", "fsMain");
 
 	_moon = new Moon();
 
@@ -30,26 +29,26 @@ void MoonCreator::OnEvent(const Event& event)
 
 void MoonCreator::OnUpdate(float deltaTime)
 {
-	Queue queue = Application::GetWGPUContext()->queue;
+	wgpu::Queue queue = Application::GetWGPUContext()->queue;
 
 	_cameraController->OnUpdate(deltaTime);
 
 	Mat4 viewProjection = _camera->GetProjection() * _camera->GetInverseView();
 
-	queue.writeBuffer(_pipeline->uniformBuffer, offsetof(MoonUniform, viewProjection), &viewProjection, sizeof(Mat4));
+	queue.writeBuffer(_moon->GetRenderPipeline()->uniformBuffer, offsetof(MoonRenderUniform, viewProjection), &viewProjection, sizeof(Mat4));
 }
 
 void MoonCreator::OnDraw()
 {
-	Instance instance = Application::GetWGPUContext()->instance;
-	Surface surface = Application::GetWGPUContext()->surface;
-	Adapter adapter = Application::GetWGPUContext()->adapter;
-	Device device = Application::GetWGPUContext()->device;
-	SwapChain swapChain = Application::GetWGPUContext()->swapChain;
-	TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
-	Queue queue = Application::GetWGPUContext()->queue;
+	wgpu::Instance instance = Application::GetWGPUContext()->instance;
+	wgpu::Surface surface = Application::GetWGPUContext()->surface;
+	wgpu::Adapter adapter = Application::GetWGPUContext()->adapter;
+	wgpu::Device device = Application::GetWGPUContext()->device;
+	wgpu::SwapChain swapChain = Application::GetWGPUContext()->swapChain;
+	wgpu::TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
+	wgpu::Queue queue = Application::GetWGPUContext()->queue;
 
-	TextureView nextTexture = swapChain.getCurrentTextureView();
+	wgpu::TextureView nextTexture = swapChain.getCurrentTextureView();
 	if (!nextTexture)
 	{
 		std::cerr << "Cannot acquire next swap chain texture" << std::endl;
@@ -57,28 +56,28 @@ void MoonCreator::OnDraw()
 		return;
 	}
 
-	CommandEncoderDescriptor commandEncoderDesc;
+	wgpu::CommandEncoderDescriptor commandEncoderDesc = wgpu::Default;
 	commandEncoderDesc.label = "Command Encoder";
-	CommandEncoder encoder = device.createCommandEncoder(commandEncoderDesc);
+	wgpu::CommandEncoder encoder = device.createCommandEncoder(commandEncoderDesc);
 
-	RenderPassDescriptor renderPassDesc;
+	wgpu::RenderPassDescriptor renderPassDesc = wgpu::Default;
 
-	RenderPassColorAttachment renderPassColorAttachment{};
+	wgpu::RenderPassColorAttachment renderPassColorAttachment = wgpu::Default;
 	renderPassColorAttachment.view = nextTexture;
 	renderPassColorAttachment.resolveTarget = nullptr;
-	renderPassColorAttachment.loadOp = LoadOp::Clear;
-	renderPassColorAttachment.storeOp = StoreOp::Store;
-	renderPassColorAttachment.clearValue = Color{ 0.1, 0.1, 0.1, 1.0 };
+	renderPassColorAttachment.loadOp = wgpu::LoadOp::Clear;
+	renderPassColorAttachment.storeOp = wgpu::StoreOp::Store;
+	renderPassColorAttachment.clearValue = wgpu::Color{ 0.1, 0.1, 0.1, 1.0 };
 
-	RenderPassDepthStencilAttachment depthStencilAttachment;
+	wgpu::RenderPassDepthStencilAttachment depthStencilAttachment = wgpu::Default;
 	depthStencilAttachment.view = _depthTexture->GetTextureView();
 	depthStencilAttachment.depthClearValue = 1.0f;
-	depthStencilAttachment.depthLoadOp = LoadOp::Clear;
-	depthStencilAttachment.depthStoreOp = StoreOp::Store;
+	depthStencilAttachment.depthLoadOp = wgpu::LoadOp::Clear;
+	depthStencilAttachment.depthStoreOp = wgpu::StoreOp::Store;
 	depthStencilAttachment.depthReadOnly = false;
 	depthStencilAttachment.stencilClearValue = 0;
-	depthStencilAttachment.stencilLoadOp = LoadOp::Clear;
-	depthStencilAttachment.stencilStoreOp = StoreOp::Store;
+	depthStencilAttachment.stencilLoadOp = wgpu::LoadOp::Clear;
+	depthStencilAttachment.stencilStoreOp = wgpu::StoreOp::Store;
 	depthStencilAttachment.stencilReadOnly = true;
 
 	renderPassDesc.colorAttachmentCount = 1;
@@ -88,24 +87,21 @@ void MoonCreator::OnDraw()
 	renderPassDesc.timestampWrites = nullptr;
 	renderPassDesc.label = "Render Pass";
 
-	RenderPassEncoder renderPass = encoder.beginRenderPass(renderPassDesc);
+	wgpu::RenderPassEncoder renderPass = encoder.beginRenderPass(renderPassDesc);
 
-	renderPass.setPipeline(_pipeline->pipeline);
-	renderPass.setBindGroup(0, _pipeline->bindGroup, 0, nullptr);
-
-	_moon->GetMesh()->Draw(renderPass);
+	_moon->Draw(renderPass);
 
 	renderPass.end();
 	renderPass.release();
 
 	nextTexture.release();
 
-	CommandBufferDescriptor cmdBufferDescriptor;
+	wgpu::CommandBufferDescriptor cmdBufferDescriptor = wgpu::Default;
 	cmdBufferDescriptor.label = "Command buffer";
-	CommandBuffer command = encoder.finish(cmdBufferDescriptor);
+	wgpu::CommandBuffer commands = encoder.finish(cmdBufferDescriptor);
 	encoder.release();
-	queue.submit(command);
-	command.release();
+	queue.submit(commands);
+	commands.release();
 
 	swapChain.present();
 }
@@ -115,7 +111,6 @@ void MoonCreator::OnDestroy()
 	delete _cameraController;
 	delete _camera;
 	delete _moon;
-	delete _pipeline;
 	delete _depthTexture;
 }
 
@@ -123,6 +118,5 @@ void MoonCreator::OnResize(const WindowResizeEvent &event)
 {
 	_camera->Resize(event.GetWidth(), event.GetHeight());
 
-	delete _depthTexture;
-	_depthTexture = new DepthTexture(event.GetWidth(), event.GetHeight());
+	_depthTexture->Resize(event.GetWidth(), event.GetHeight());
 }

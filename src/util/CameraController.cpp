@@ -25,10 +25,13 @@ void CameraController::OnUpdate(float deltaTime)
 	}
 
 	// zoom
+	static float targetDistance = _distance;
+
 	Vec2 scroll = Input::GetScroll();
-	float distance = _distance - scroll.y * 0.5f;
-	distance = Math::Clamp(distance, 1.1f, 5.0f);
-	SetDistance(distance);
+	targetDistance -= scroll.y * 0.5f;
+	targetDistance = Math::Clamp(targetDistance, 0.0f, 15.0f);
+
+	SetDistance(Math::Lerp(targetDistance, _distance, powf(0.5f, deltaTime * 30.0f)));
 
 	// rotation
 	Quat cameraRotation = _camera->GetRotation();

@@ -9,8 +9,6 @@
 #include "core/event/KeyboardEvent.h"
 #include "core/event/MouseEvent.h"
 
-using namespace wgpu;
-
 Window::Window(
 	uint32_t width, 
 	uint32_t height, 
@@ -42,19 +40,19 @@ Window::Window(
 	glfwSetFramebufferSizeCallback(_handle, [](GLFWwindow* window, int width, int height) 
 	{
 		// Recreate SwapChain
-		Device device = Application::GetWGPUContext()->device;
-		Surface surface = Application::GetWGPUContext()->surface;
-		TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
-		SwapChain& swapChain = Application::GetWGPUContext()->swapChain;
+		wgpu::Device device = Application::GetWGPUContext()->device;
+		wgpu::Surface surface = Application::GetWGPUContext()->surface;
+		wgpu::TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
+		wgpu::SwapChain& swapChain = Application::GetWGPUContext()->swapChain;
 		swapChain.release();
 
-		SwapChainDescriptor swapChainDesc;
+		wgpu::SwapChainDescriptor swapChainDesc;
 		swapChainDesc.label = "SwapChain";
 		swapChainDesc.width = (uint32_t)width;
 		swapChainDesc.height = (uint32_t)height;
-		swapChainDesc.usage = TextureUsage::RenderAttachment;
+		swapChainDesc.usage = wgpu::TextureUsage::RenderAttachment;
 		swapChainDesc.format = swapChainFormat;
-		swapChainDesc.presentMode = PresentMode::Fifo;
+		swapChainDesc.presentMode = wgpu::PresentMode::Fifo;
 		swapChain = device.createSwapChain(surface, swapChainDesc);
 	});
 

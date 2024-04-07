@@ -18,9 +18,11 @@ private:
 private:
 	Camera* _camera;
 
-	Vec2 _drag{ 0.0f };
 	Vec2 _lastMousePos{ 0.0f };
 	float _pitch = 0;
 	float _yaw = 0;
 	float _distance = 3.0f;
+
+	// for animation
+	Vec2 _drag{ 0.0f };
 };

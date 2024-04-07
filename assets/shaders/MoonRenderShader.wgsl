@@ -124,7 +124,7 @@ fn vsMain(in: VertexInput) -> VertexOutput {
 
 	out.clipPosition = uniformData.viewProjection * vec4<f32>(in.position, 1.0);
 	out.objectPosition = in.position;
-	out.normal = in.normal;
+	out.normal = in.normal; 
 	return out;
 }
 

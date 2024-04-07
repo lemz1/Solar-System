@@ -7,8 +7,6 @@
 #include <cassert>
 #include <stb_image/stb_image.h>
 
-using namespace wgpu;
-
 std::string AssetManager::GetFileContent(const char* filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
@@ -52,7 +50,7 @@ wgpu::ShaderModule AssetManager::LoadShaderModule(const char* filePath)
 
 Texture2D* AssetManager::LoadTexture2D(
     const char* filePath,
-    TextureFormat textureFormat
+    wgpu::TextureFormat textureFormat
 )
 {
     void* pixels;
@@ -61,10 +59,10 @@ Texture2D* AssetManager::LoadTexture2D(
     int numComponents;
     switch (textureFormat)
     {
-        case TextureFormat::RGBA8Unorm:
+        case wgpu::TextureFormat::RGBA8Unorm:
             pixels = stbi_load(filePath, &width, &height, &numComponents, 4);
             break;
-        case TextureFormat::RGBA32Float:
+        case wgpu::TextureFormat::RGBA32Float:
             pixels = stbi_loadf(filePath, &width, &height, &numComponents, 4);
             break;
         default:

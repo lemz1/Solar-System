@@ -1,7 +1,5 @@
 #include "WGPUContext.h"
 
-using namespace wgpu;
-
 WGPUContext::WGPUContext(
 	GLFWwindow* window,
 	uint32_t width,
@@ -12,10 +10,10 @@ WGPUContext::WGPUContext(
 	adapter(nullptr),
 	device(nullptr),
 	swapChain(nullptr),
-	swapChainFormat(TextureFormat::BGRA8Unorm), // default
+	swapChainFormat(wgpu::TextureFormat::BGRA8Unorm), // default
 	queue(nullptr)
 {
-	instance = createInstance(InstanceDescriptor{});
+	instance = createInstance(wgpu::InstanceDescriptor{});
 	if (!instance)
 	{
 		std::cerr << "Could not initialize WebGPU!" << std::endl;
@@ -23,14 +21,14 @@ WGPUContext::WGPUContext(
 	}
 
 	surface = glfwGetWGPUSurface(instance, window);
-	RequestAdapterOptions adapterOpts;
+	wgpu::RequestAdapterOptions adapterOpts;
 	adapterOpts.compatibleSurface = surface;
 	adapter = instance.requestAdapter(adapterOpts);
 
-	SupportedLimits supportedLimits;
+	wgpu::SupportedLimits supportedLimits;
 	adapter.getLimits(&supportedLimits);
 
-	RequiredLimits requiredLimits = Default;
+	wgpu::RequiredLimits requiredLimits = wgpu::Default;
 	requiredLimits.limits.maxVertexAttributes = 3;
 	requiredLimits.limits.maxVertexBuffers = 3;
 	requiredLimits.limits.maxBufferSize = 1000 * 1000 * 16; // 16MB
@@ -46,8 +44,15 @@ WGPUContext::WGPUContext(
 	requiredLimits.limits.maxTextureArrayLayers = 1;
 	requiredLimits.limits.maxSampledTexturesPerShaderStage = 1;
 	requiredLimits.limits.maxSamplersPerShaderStage = 1;
+	requiredLimits.limits.maxStorageBuffersPerShaderStage = 2;
+	requiredLimits.limits.maxStorageBufferBindingSize = 1000 * 1000 * 16; // 16MB;
+	requiredLimits.limits.maxComputeWorkgroupSizeX = 128;
+	requiredLimits.limits.maxComputeWorkgroupSizeY = 1;
+	requiredLimits.limits.maxComputeWorkgroupSizeZ = 1;
+	requiredLimits.limits.maxComputeInvocationsPerWorkgroup = 128;
+	requiredLimits.limits.maxComputeWorkgroupsPerDimension = 512;
 	
-	DeviceDescriptor deviceDesc;
+	wgpu::DeviceDescriptor deviceDesc;
 	deviceDesc.label = "Device";
 	deviceDesc.requiredFeaturesCount = 0;
 	deviceDesc.requiredLimits = &requiredLimits;
@@ -69,13 +74,13 @@ WGPUContext::WGPUContext(
 
 	swapChainFormat = surface.getPreferredFormat(adapter);
 
-	SwapChainDescriptor swapChainDesc;
+	wgpu::SwapChainDescriptor swapChainDesc;
 	swapChainDesc.label = "SwapChain";
 	swapChainDesc.width = width;
 	swapChainDesc.height = height;
-	swapChainDesc.usage = TextureUsage::RenderAttachment;
+	swapChainDesc.usage = wgpu::TextureUsage::RenderAttachment;
 	swapChainDesc.format = swapChainFormat;
-	swapChainDesc.presentMode = PresentMode::Fifo;
+	swapChainDesc.presentMode = wgpu::PresentMode::Fifo;
 	swapChain = device.createSwapChain(surface, swapChainDesc);
 
 	queue = device.getQueue();

@@ -15,6 +15,8 @@ public:
     );
     ~Mesh();
 
+    void Draw(wgpu::RenderPassEncoder renderPass) const;
+
     void SetVertices(const Vector<Vec3>& vertices);
     const Vector<Vec3>& GetVertices() const { return _vertices; }
 
@@ -24,13 +26,15 @@ public:
     void SetIndices(const Vector<uint32_t>& indices);
     const Vector<uint32_t>& GetIndices() const { return _indices; }
 
-    void Draw(wgpu::RenderPassEncoder renderPass) const;
+    wgpu::Buffer GetVertexBuffer() const { return _vertexBuffer; }
+    wgpu::Buffer GetNormalBuffer() const { return _normalBuffer; }
+    wgpu::Buffer GetIndexBuffer() const { return _indexBuffer; }
 private:
     Vector<Vec3> _vertices;
     Vector<Vec3> _normals;
     Vector<uint32_t> _indices;
 
-    wgpu::Buffer _vertexBuffer;
-    wgpu::Buffer _normalBuffer;
-    wgpu::Buffer _indexBuffer;
+    wgpu::Buffer _vertexBuffer = nullptr;
+    wgpu::Buffer _normalBuffer = nullptr;
+    wgpu::Buffer _indexBuffer = nullptr;
 };

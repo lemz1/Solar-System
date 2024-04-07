@@ -6,7 +6,6 @@
 #include "util/Camera.h"
 #include "util/CameraController.h"
 #include "celestial/Moon.h"
-#include "celestial/MoonPipeline.h"
 
 class MoonCreator : public State
 {
@@ -22,7 +21,6 @@ private:
 	void OnResize(const WindowResizeEvent& event);
 private:
 	DepthTexture* _depthTexture = nullptr;
-	MoonPipeline* _pipeline = nullptr;
 	Moon* _moon = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;
