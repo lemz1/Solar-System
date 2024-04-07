@@ -3,8 +3,6 @@
 #include "core/Application.h"
 #include "debug/Timer.h"
 
-using namespace wgpu;
-
 Mesh::Mesh(
     const Vector<Vec3>& vertices,
     const Vector<Vec3>& normals,
@@ -18,107 +16,81 @@ Mesh::Mesh(
 
 Mesh::~Mesh() 
 {
-    _vertexBuffer.destroy();
-    _vertexBuffer.release();
-    _normalBuffer.destroy();
-    _normalBuffer.release();
-    _indexBuffer.destroy();
-    _indexBuffer.release();
+    delete _indexBuffer;
+    delete _normalBuffer;
+    delete _vertexBuffer;
 }
 
 void Mesh::SetVertices(const Vector<Vec3>& vertices)
 {
-    Device device = Application::GetWGPUContext()->device;
-    Queue queue = Application::GetWGPUContext()->queue;
-
     if (_vertices.size() != vertices.size()) 
     {
         if (_vertexBuffer) 
         {
-            _vertexBuffer.destroy();
-            _vertexBuffer.release();
+            delete _vertexBuffer;
         }
 
-        BufferDescriptor bufferDesc;
-        bufferDesc.label = "Vertex Buffer (Mesh)";
-        bufferDesc.size = vertices.size() * sizeof(Vec3);
-        bufferDesc.usage = BufferUsage::CopyDst | BufferUsage::Vertex;
-        bufferDesc.mappedAtCreation = false;
-        _vertexBuffer = device.createBuffer(bufferDesc);
+        uint32_t size = vertices.size() * sizeof(Vec3);
+        _vertexBuffer = new Buffer(wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst, size);
     }
 
     _vertices = vertices;
 
-    queue.writeBuffer(_vertexBuffer, 0, _vertices.data(), _vertices.size() * sizeof(Vec3));
+    _vertexBuffer->Write(_vertices.data(), _vertices.size() * sizeof(Vec3));
 }
 
 void Mesh::SetNormals(const Vector<Vec3>& normals)
 {
-    Device device = Application::GetWGPUContext()->device;
-    Queue queue = Application::GetWGPUContext()->queue;
-
     if (_normals.size() != normals.size()) 
     {
         if (_normalBuffer) 
         {
-            _normalBuffer.destroy();
-            _normalBuffer.release();
+            delete _normalBuffer;
         }
 
-        BufferDescriptor bufferDesc;
-        bufferDesc.label = "Normal Buffer (Mesh)";
-        bufferDesc.size = normals.size() * sizeof(Vec3);
-        bufferDesc.usage = BufferUsage::CopyDst | BufferUsage::Vertex;
-        bufferDesc.mappedAtCreation = false;
-        _normalBuffer = device.createBuffer(bufferDesc);
+        uint32_t size = normals.size() * sizeof(Vec3);
+        _normalBuffer = new Buffer(wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst, size);
     }
 
     _normals = normals;
 
-    queue.writeBuffer(_normalBuffer, 0, _normals.data(), _normals.size() * sizeof(Vec3));
+    _normalBuffer->Write(_normals.data(), _normals.size() * sizeof(Vec3));
 }
 
 void Mesh::SetIndices(const Vector<uint32_t>& indices)
 {
-
-    Device device = Application::GetWGPUContext()->device;
-    Queue queue = Application::GetWGPUContext()->queue;
-
     if (_indices.size() != indices.size()) 
     {
         if (_indexBuffer) 
         {
-            _indexBuffer.destroy();
-            _indexBuffer.release();
+            delete _indexBuffer;
         }
 
-        BufferDescriptor bufferDesc;
-        bufferDesc.label = "Index Buffer (Mesh)";
-        bufferDesc.size = indices.size() * sizeof(uint32_t);
-        bufferDesc.usage = BufferUsage::CopyDst | BufferUsage::Index;
-        bufferDesc.mappedAtCreation = false;
-        _indexBuffer = device.createBuffer(bufferDesc);
+        uint32_t size = indices.size() * sizeof(uint32_t);
+        _indexBuffer = new Buffer(wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst, size);
     }
 
     _indices = indices;
 
-    queue.writeBuffer(_indexBuffer, 0, _indices.data(), _indices.size() * sizeof(uint32_t));
+    _indexBuffer->Write(_indices.data(), _indices.size() * sizeof(uint32_t));
 }
 
-void Mesh::Draw(RenderPassEncoder renderPass) const
+void Mesh::Draw(wgpu::RenderPassEncoder renderPass) const
 {
-    renderPass.setVertexBuffer(0, _vertexBuffer, 0, _vertices.size() * sizeof(Vec3));
-    renderPass.setVertexBuffer(1, _normalBuffer, 0, _normals.size() * sizeof(Vec3));
-    renderPass.setIndexBuffer(_indexBuffer, IndexFormat::Uint32, 0, _indices.size() * sizeof(uint32_t));
+    renderPass.setVertexBuffer(0, _vertexBuffer->GetBuffer(), 0, _vertices.size() * sizeof(Vec3));
+    renderPass.setVertexBuffer(1, _normalBuffer->GetBuffer(), 0, _normals.size() * sizeof(Vec3));
+    renderPass.setIndexBuffer(_indexBuffer->GetBuffer(), wgpu::IndexFormat::Uint32, 0, _indices.size() * sizeof(uint32_t));
 
     renderPass.drawIndexed((uint32_t)_indices.size(), 1, 0, 0, 0);
 }
 
+// this function is quite expensive
+// especially on Debug, but Release is fine
 void Mesh::RecalculateNormals()
 {
     PROFILE_FUNCTION("Recalculate Normals");
     
-    // Calculate face normals
+    // Calculate face normals (most expensive)
     Vector<Vec3> faceNormals;
     faceNormals.reserve(_indices.size() / 3);
     for (uint32_t i = 0; i < _indices.size(); i += 3) 
@@ -129,7 +101,7 @@ void Mesh::RecalculateNormals()
         faceNormals.emplace_back(faceNormal);
     }
 
-    // Calculate vertex normals
+    // Calculate vertex normals (mid expensive)
     Vector<Vec3> vertexNormals(_vertices.size(), Vec3(0.0f));
     Vector<uint32_t> vertexFaceCount(_vertices.size(), 0);
     for (uint32_t i = 0; i < _indices.size(); i += 3) 
@@ -142,8 +114,15 @@ void Mesh::RecalculateNormals()
         }
     }
 
+    // Specific to icosphere:
+    // i could skip this step, because all vertices have face count 6
+    // except the 12 original vertices, they have face count 5
+    // dividing all vertexNormals by 6 is a good enough approximation 
+    // maybe i will do that later in a seperate function
+
     // Average vertex normals out by dividing 
     // by the amount of faces constructed by the vertex
+    // (least expensive)
     for (uint32_t i = 0; i < vertexNormals.size(); i++) 
     {
         if (vertexFaceCount[i] == 0) 
@@ -152,8 +131,8 @@ void Mesh::RecalculateNormals()
         }
 
         vertexNormals[i] /= vertexFaceCount[i];
-        vertexNormals[i] = glm::normalize(vertexNormals[i]);
+        // pretty sure this is not necessary
+        //vertexNormals[i] = glm::normalize(vertexNormals[i]);
     }
-
     SetNormals(vertexNormals);
 }

@@ -63,7 +63,12 @@ void Moon::Generate(uint32_t subdivisions)
 	else 
 	{
 		_mesh->SetVertices(vertices);
-		_mesh->SetIndices(IcoSphereData.indices);
+		
+		if (_mesh->GetIndices().size() != IcoSphereData.indices.size()) 
+		{
+			_mesh->SetIndices(IcoSphereData.indices);
+		}
+
 		_mesh->RecalculateNormals();
 	}
 }
