@@ -17,6 +17,8 @@ public:
 
     void Draw(wgpu::RenderPassEncoder renderPass) const;
 
+    void RecalculateNormals();
+
     void SetVertices(const Vector<Vec3>& vertices);
     const Vector<Vec3>& GetVertices() const { return _vertices; }
 

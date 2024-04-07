@@ -40,8 +40,9 @@ fn calculateLighting(
     let ambientStrength: f32 = 0.2;
     let ambientColor: vec3<f32> = color * ambientStrength;
 
-    let lightDir: vec3<f32> = vec3<f32>(1.0, 1.0, 0.0);
-    let diffuseStrength: f32 = max(dot(normal, lightDir), 0.0);
+	// light from top-right to bottom-left
+    let lightDir: vec3<f32> = normalize(vec3<f32>(-1.0, -1.0, 0.0)); 
+    let diffuseStrength: f32 = max(-dot(normal, lightDir), 0.0);
     let diffuseColor: vec3<f32> = color * diffuseStrength;
 
     let litColor: vec3<f32> = ambientColor + diffuseColor;
@@ -124,7 +125,7 @@ fn vsMain(in: VertexInput) -> VertexOutput {
 
 	out.clipPosition = uniformData.viewProjection * vec4<f32>(in.position, 1.0);
 	out.objectPosition = in.position;
-	out.normal = in.normal; 
+	out.normal = in.normal;
 	return out;
 }
 

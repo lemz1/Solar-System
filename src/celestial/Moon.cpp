@@ -21,6 +21,8 @@ Moon::~Moon()
 	delete _computeHeightBuffer;
 	delete _computeVertexBuffer;
 	delete _mesh;
+	delete _computePipeline;
+	delete _renderPipeline;
 }
 
 void Moon::Generate(uint32_t subdivisions)
@@ -46,22 +48,23 @@ void Moon::Generate(uint32_t subdivisions)
 	Vector<float> heights = _computePipeline->Compute(_computeHeightBuffer->GetBuffer(), _computeBindGroup);
 	
 	Vector<Vec3> vertices = IcoSphereData.vertices;
-	Vector<Vec3> normals = IcoSphereData.normals;
 
 	for (int i = 0; i < vertices.size(); i++) 
 	{
-		vertices[i] = vertices[i] * 1.0f;
+		vertices[i] = vertices[i] * heights[i];
 	}
 
 	if (!_mesh)
 	{
-		_mesh = new Mesh(vertices, normals, IcoSphereData.indices);
+		// im using vertices in normals as a placeholder
+		_mesh = new Mesh(vertices, vertices, IcoSphereData.indices);
+		_mesh->RecalculateNormals();
 	} 
 	else 
 	{
 		_mesh->SetVertices(vertices);
-		_mesh->SetNormals(normals);
 		_mesh->SetIndices(IcoSphereData.indices);
+		_mesh->RecalculateNormals();
 	}
 }
 

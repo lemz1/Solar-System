@@ -6,7 +6,8 @@
 
 struct MoonComputeUniform 
 {
-    uint32_t numVertices;
+    uint32_t numVertices = 0;
+	float frequency = 1.0f;
 };
 
 class MoonComputePipeline

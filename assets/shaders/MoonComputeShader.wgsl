@@ -1,13 +1,14 @@
 struct UniformData {
     numVertices: u32,
+    frequency: f32,
 }
 
 @group(0) @binding(0) var<storage, read> vertices: array<f32>; // vec3
 @group(0) @binding(1) var<storage, read_write> heights: array<f32>;
 @group(0) @binding(2) var<uniform> uniformData : UniformData;
 
-fn func(val: vec3<f32>) -> f32 {
-    return 2.0;
+fn func(vertex: vec3<f32>) -> f32 {
+    return 1.0 + sin(vertex.y * uniformData.frequency) * 0.05;
 }
 
 @compute @workgroup_size(32)

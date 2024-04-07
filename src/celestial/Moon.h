@@ -22,6 +22,8 @@ public:
 
 	const Mesh* GetMesh() const { return _mesh; }
 
+	const Buffer* GetComputeUniformBuffer() const { return _computeUniformBuffer; }
+
 	const MoonComputePipeline* GetComputePipeline() const { return _computePipeline; }
 	const MoonRenderPipeline* GetRenderPipeline() const { return _renderPipeline; }
 private:

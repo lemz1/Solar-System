@@ -1,6 +1,7 @@
 #include "Mesh.h"
 
 #include "core/Application.h"
+#include "debug/Timer.h"
 
 using namespace wgpu;
 
@@ -111,4 +112,48 @@ void Mesh::Draw(RenderPassEncoder renderPass) const
     renderPass.setIndexBuffer(_indexBuffer, IndexFormat::Uint32, 0, _indices.size() * sizeof(uint32_t));
 
     renderPass.drawIndexed((uint32_t)_indices.size(), 1, 0, 0, 0);
+}
+
+void Mesh::RecalculateNormals()
+{
+    PROFILE_FUNCTION("Recalculate Normals");
+    
+    // Calculate face normals
+    Vector<Vec3> faceNormals;
+    faceNormals.reserve(_indices.size() / 3);
+    for (uint32_t i = 0; i < _indices.size(); i += 3) 
+    {
+        Vec3 edge1 = _vertices[_indices[i + 1]] - _vertices[_indices[i]];
+        Vec3 edge2 = _vertices[_indices[i + 2]] - _vertices[_indices[i]];
+        Vec3 faceNormal = glm::normalize(glm::cross(edge2, edge1));
+        faceNormals.emplace_back(faceNormal);
+    }
+
+    // Calculate vertex normals
+    Vector<Vec3> vertexNormals(_vertices.size(), Vec3(0.0f));
+    Vector<uint32_t> vertexFaceCount(_vertices.size(), 0);
+    for (uint32_t i = 0; i < _indices.size(); i += 3) 
+    {
+        for (uint32_t j = 0; j < 3; j++) 
+        {
+            uint32_t vertexIndex = _indices[i + j];
+            vertexNormals[vertexIndex] += faceNormals[i / 3];
+            vertexFaceCount[vertexIndex] += 1;
+        }
+    }
+
+    // Average vertex normals out by dividing 
+    // by the amount of faces constructed by the vertex
+    for (uint32_t i = 0; i < vertexNormals.size(); i++) 
+    {
+        if (vertexFaceCount[i] == 0) 
+        {
+            continue;
+        }
+
+        vertexNormals[i] /= vertexFaceCount[i];
+        vertexNormals[i] = glm::normalize(vertexNormals[i]);
+    }
+
+    SetNormals(vertexNormals);
 }

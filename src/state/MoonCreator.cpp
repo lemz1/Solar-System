@@ -33,6 +33,12 @@ void MoonCreator::OnUpdate(float deltaTime)
 
 	_cameraController->OnUpdate(deltaTime);
 
+	float time = Application::GetTime();
+	float frequency = 1.0f + time * 3.0f;
+	queue.writeBuffer(_moon->GetComputeUniformBuffer()->GetBuffer(), offsetof(MoonComputeUniform, frequency), &frequency, sizeof(float));
+
+	_moon->Generate(5);
+
 	Mat4 viewProjection = _camera->GetProjection() * _camera->GetInverseView();
 
 	queue.writeBuffer(_moon->GetRenderPipeline()->uniformBuffer, offsetof(MoonRenderUniform, viewProjection), &viewProjection, sizeof(Mat4));
