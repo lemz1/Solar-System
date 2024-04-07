@@ -11,7 +11,7 @@ Moon::Moon()
 {
 	_renderPipeline = new MoonRenderPipeline("assets/shaders/MoonRenderShader.wgsl");
 
-	Generate(5);
+	Generate(4);
 }
 
 Moon::~Moon()
