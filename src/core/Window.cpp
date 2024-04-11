@@ -44,6 +44,8 @@ Window::Window(
 		wgpu::Surface surface = Application::GetWGPUContext()->surface;
 		wgpu::TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
 		wgpu::SwapChain& swapChain = Application::GetWGPUContext()->swapChain;
+		DepthTexture* depthTexture = depthTexture;
+
 		swapChain.release();
 
 		wgpu::SwapChainDescriptor swapChainDesc;
@@ -54,6 +56,8 @@ Window::Window(
 		swapChainDesc.format = swapChainFormat;
 		swapChainDesc.presentMode = wgpu::PresentMode::Fifo;
 		swapChain = device.createSwapChain(surface, swapChainDesc);
+
+		depthTexture->Resize(width, height);
 	});
 
 	glfwSetWindowCloseCallback(_handle, [](GLFWwindow* window)

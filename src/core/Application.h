@@ -1,8 +1,9 @@
 #pragma once
 
 #include "core/Window.h"
-#include "wgpu/WGPUContext.h"
 #include "core/State.h"
+#include "wgpu/WGPUContext.h"
+#include "mygui/MyGuiContext.h"
 
 class Application
 {
@@ -29,5 +30,6 @@ private:
 	float _time = 0;
 	Window* _window = nullptr;
 	WGPUContext* _wgpuContext = nullptr;
+	MyGuiContext* _myguiContext = nullptr;
 	State* _state = nullptr;
 };

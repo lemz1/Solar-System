@@ -22,6 +22,8 @@ Application::Application(
 
 	_wgpuContext = new WGPUContext(_window->GetHandle(), _window->GetWidth(), _window->GetHeight());
 
+	_myguiContext = new MyGuiContext();
+
 	_state = initialState;
 	_state->OnCreate();
 }
@@ -31,6 +33,7 @@ Application::~Application()
 	_state->OnDestroy();
 	delete _state;
 
+	delete _myguiContext;
 	delete _wgpuContext;
 	delete _window;
 }
@@ -50,7 +53,16 @@ void Application::Run()
 		glfwPollEvents();
 
 		_state->OnUpdate(deltaTime);
-		_state->OnDraw();
+
+		_wgpuContext->StartFrame();
+
+		_state->OnDraw(_wgpuContext->renderPass);
+
+		_myguiContext->StartFrame();
+		_state->OnDrawImGui();
+		_myguiContext->EndFrame();
+
+		_wgpuContext->EndFrame();
 	}
 }
 

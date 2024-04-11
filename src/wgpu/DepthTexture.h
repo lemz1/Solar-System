@@ -6,6 +6,11 @@ class DepthTexture
 {
 public:
 	DepthTexture(
+		wgpu::Device device,
+		uint32_t width,
+		uint32_t height
+	);
+	DepthTexture(
 		uint32_t width,
 		uint32_t height
 	);
@@ -23,6 +28,7 @@ public:
 
 	static wgpu::TextureFormat GetTextureFormat() { return DepthTexture::_Format; }
 private:
+	void CreateTexture(wgpu::Device device);
 	void CreateTexture();
 private:
 	static wgpu::TextureFormat _Format;

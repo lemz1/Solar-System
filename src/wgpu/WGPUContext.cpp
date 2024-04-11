@@ -5,13 +5,6 @@ WGPUContext::WGPUContext(
 	uint32_t width,
 	uint32_t height
 )
-:	instance(nullptr),
-	surface(nullptr),
-	adapter(nullptr),
-	device(nullptr),
-	swapChain(nullptr),
-	swapChainFormat(wgpu::TextureFormat::BGRA8Unorm), // default
-	queue(nullptr)
 {
 	instance = createInstance(wgpu::InstanceDescriptor{});
 	if (!instance)
@@ -36,7 +29,7 @@ WGPUContext::WGPUContext(
 	requiredLimits.limits.minStorageBufferOffsetAlignment = supportedLimits.limits.minStorageBufferOffsetAlignment;
 	requiredLimits.limits.minUniformBufferOffsetAlignment = supportedLimits.limits.minUniformBufferOffsetAlignment;
 	requiredLimits.limits.maxInterStageShaderComponents = 6;
-	requiredLimits.limits.maxBindGroups = 1;
+	requiredLimits.limits.maxBindGroups = 2;
 	requiredLimits.limits.maxUniformBuffersPerShaderStage = 1;
 	requiredLimits.limits.maxUniformBufferBindingSize = 64 * sizeof(float);
 	requiredLimits.limits.maxTextureDimension1D = 2160;
@@ -84,6 +77,8 @@ WGPUContext::WGPUContext(
 	swapChain = device.createSwapChain(surface, swapChainDesc);
 
 	queue = device.getQueue();
+
+	depthTexture = new DepthTexture(device, width, height);
 }
 
 WGPUContext::~WGPUContext()
@@ -93,4 +88,65 @@ WGPUContext::~WGPUContext()
 	adapter.release();
 	surface.release();
 	instance.release();
+}
+
+void WGPUContext::StartFrame()
+{
+	nextTexture = swapChain.getCurrentTextureView();
+	if (!nextTexture)
+	{
+		std::cerr << "Cannot acquire next swap chain texture" << std::endl;
+		assert(false);
+		return;
+	}
+
+	wgpu::CommandEncoderDescriptor commandEncoderDesc = wgpu::Default;
+	commandEncoderDesc.label = "Command Encoder";
+	encoder = device.createCommandEncoder(commandEncoderDesc);
+
+	wgpu::RenderPassDescriptor renderPassDesc = wgpu::Default;
+
+	wgpu::RenderPassColorAttachment renderPassColorAttachment = wgpu::Default;
+	renderPassColorAttachment.view = nextTexture;
+	renderPassColorAttachment.resolveTarget = nullptr;
+	renderPassColorAttachment.loadOp = wgpu::LoadOp::Clear;
+	renderPassColorAttachment.storeOp = wgpu::StoreOp::Store;
+	renderPassColorAttachment.clearValue = wgpu::Color{ 0.1, 0.1, 0.1, 1.0 };
+
+	wgpu::RenderPassDepthStencilAttachment depthStencilAttachment = wgpu::Default;
+	depthStencilAttachment.view = depthTexture->GetTextureView();
+	depthStencilAttachment.depthClearValue = 1.0f;
+	depthStencilAttachment.depthLoadOp = wgpu::LoadOp::Clear;
+	depthStencilAttachment.depthStoreOp = wgpu::StoreOp::Store;
+	depthStencilAttachment.depthReadOnly = false;
+	depthStencilAttachment.stencilClearValue = 0;
+	depthStencilAttachment.stencilLoadOp = wgpu::LoadOp::Clear;
+	depthStencilAttachment.stencilStoreOp = wgpu::StoreOp::Store;
+	depthStencilAttachment.stencilReadOnly = true;
+
+	renderPassDesc.colorAttachmentCount = 1;
+	renderPassDesc.colorAttachments = &renderPassColorAttachment;
+	renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
+	renderPassDesc.timestampWriteCount = 0;
+	renderPassDesc.timestampWrites = nullptr;
+	renderPassDesc.label = "Render Pass";
+
+	renderPass = encoder.beginRenderPass(renderPassDesc);
+}
+
+void WGPUContext::EndFrame()
+{
+	renderPass.end();
+	renderPass.release();
+
+	nextTexture.release();
+
+	wgpu::CommandBufferDescriptor cmdBufferDescriptor = wgpu::Default;
+	cmdBufferDescriptor.label = "Command buffer";
+	wgpu::CommandBuffer commands = encoder.finish(cmdBufferDescriptor);
+	encoder.release();
+	queue.submit(commands);
+	commands.release();
+
+	swapChain.present();
 }

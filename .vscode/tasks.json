@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "Build Windows Debug",
-            "command": "build-debug.bat",
+            "command": "scripts/build-debug.bat",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -11,7 +11,7 @@
         },
         {
             "label": "Build Windows Release",
-            "command": "build-release.bat",
+            "command": "scripts/build-release.bat",
             "group": {
                 "kind": "build",
                 "isDefault": false
@@ -19,7 +19,7 @@
         },
         {
             "label": "Build Linux Debug",
-            "command": "build-debug.sh",
+            "command": "scripts/build-debug.sh",
             "group": {
                 "kind": "build",
                 "isDefault": false
@@ -27,7 +27,7 @@
         },
         {
             "label": "Build Linux Release",
-            "command": "build-release.sh",
+            "command": "scripts/build-release.sh",
             "group": {
                 "kind": "build",
                 "isDefault": false

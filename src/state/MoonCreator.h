@@ -2,7 +2,6 @@
 
 #include "core/State.h"
 #include "core/event/WindowEvent.h"
-#include "wgpu/DepthTexture.h"
 #include "util/Camera.h"
 #include "util/CameraController.h"
 #include "celestial/Moon.h"
@@ -15,12 +14,12 @@ public:
 	void OnCreate() override;
 	void OnEvent(const Event& event) override;
 	void OnUpdate(float deltaTime) override;
-	void OnDraw() override;
+	void OnDraw(wgpu::RenderPassEncoder renderPass) override;
+	void OnDrawImGui() override;
 	void OnDestroy() override;
 private:
 	void OnResize(const WindowResizeEvent& event);
 private:
-	DepthTexture* _depthTexture = nullptr;
 	Moon* _moon = nullptr;
 	Camera* _camera = nullptr;
 	CameraController* _cameraController = nullptr;

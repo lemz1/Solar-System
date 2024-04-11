@@ -56,7 +56,8 @@ project "Solar-System"
         "%{wks.location}/vendor/webgpu/include",
         "%{wks.location}/vendor/glfw3webgpu",
         "%{wks.location}/vendor/stb_image",
-        "%{wks.location}/vendor/imgui"
+        "%{wks.location}/vendor/imgui", -- i like this one better
+        "%{wks.location}/vendor/imgui/imgui" -- im required to do this
     }
 
     links

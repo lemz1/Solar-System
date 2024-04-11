@@ -5,13 +5,26 @@
 wgpu::TextureFormat DepthTexture::_Format = wgpu::TextureFormat::Depth24Plus;
 
 DepthTexture::DepthTexture(
-	uint32_t width,
+	wgpu::Device device,
+    uint32_t width,
+    uint32_t height
+)
+: 	_width(width),
+    _height(height),
+    _texture(nullptr),
+    _textureView(nullptr)
+{
+	CreateTexture(device);
+}
+
+DepthTexture::DepthTexture(
+	uint32_t width, 
 	uint32_t height
 )
-:	_width(width),
-	_height(height),
-	_texture(nullptr),
-	_textureView(nullptr)
+: 	_width(width),
+    _height(height),
+    _texture(nullptr),
+    _textureView(nullptr)
 {
 	CreateTexture();
 }
@@ -43,10 +56,8 @@ void DepthTexture::Resize(
 	CreateTexture();
 }
 
-void DepthTexture::CreateTexture()
+void DepthTexture::CreateTexture(wgpu::Device device)
 {
-	wgpu::Device device = Application::GetWGPUContext()->device;
-
 	wgpu::TextureDescriptor textureDesc = wgpu::Default;
 	textureDesc.dimension = wgpu::TextureDimension::_2D;
 	textureDesc.format = DepthTexture::_Format;
@@ -69,4 +80,9 @@ void DepthTexture::CreateTexture()
 	textureViewDesc.format = DepthTexture::_Format;
 	textureViewDesc.label = "Depth Texture View";
 	_textureView = _texture.createView(textureViewDesc);
+}
+
+void DepthTexture::CreateTexture()
+{
+	CreateTexture(Application::GetWGPUContext()->device);
 }
