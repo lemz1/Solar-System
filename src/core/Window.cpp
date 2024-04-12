@@ -44,7 +44,7 @@ Window::Window(
 		wgpu::Surface surface = Application::GetWGPUContext()->surface;
 		wgpu::TextureFormat swapChainFormat = Application::GetWGPUContext()->swapChainFormat;
 		wgpu::SwapChain& swapChain = Application::GetWGPUContext()->swapChain;
-		DepthTexture* depthTexture = depthTexture;
+		DepthTexture* depthTexture = Application::GetWGPUContext()->depthTexture;
 
 		swapChain.release();
 
