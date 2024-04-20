@@ -1,8 +1,7 @@
 build
 export
 Makefile
- 
-# *imgui.ini
+*.make
 
 *.vcxproj
 *.vcxproj.user

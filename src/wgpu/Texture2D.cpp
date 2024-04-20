@@ -36,7 +36,7 @@ Texture2D::Texture2D(
 	textureViewDesc.mipLevelCount = 1;
 	textureViewDesc.dimension = wgpu::TextureViewDimension::_2D;
 	textureViewDesc.format = _textureFormat;
-	textureViewDesc.label = "Depth Texture View";
+	textureViewDesc.label = "Texture View";
 	_textureView = _texture.createView(textureViewDesc);
 
 	Write(pixels);
